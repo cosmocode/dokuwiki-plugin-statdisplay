@@ -1,16 +1,19 @@
-.valeur { 
-font-weight:bold;
-text-align:right;
+.valeur {
+    font-weight: bold;
+    text-align: right;
 }
+
 .pourcent {
-font-size:x-small;
-text-align:right;
+    font-size: x-small;
+    text-align: right;
 }
+
 .titre {
-text-align:center;
-font-weight:bold;
+    text-align: center;
+    font-weight: bold;
 }
-table,td {
-border:2px inset black;
-border-collapse:collapse;
+
+table, td {
+    border: 2px inset black;
+    border-collapse: collapse;
 }
