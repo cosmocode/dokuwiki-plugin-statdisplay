@@ -22,4 +22,3 @@ $conf['memory_cache']                    = 'data/cache'; // Where to cache the g
 user agent (ligne complete OU moteur affichage OU mots clef)
 nombre de lignes a traiter*/
 
-?>

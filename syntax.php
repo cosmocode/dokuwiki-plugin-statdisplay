@@ -5,32 +5,16 @@
  * @author     J.-F. Lalande <jean-francois.lalande@ensi-bourges.fr>
  * @author     Maxime Fonda <maxime.fonda@ensi-bourges.fr>
  * @author     Thibault Coullet <thibault.coullet@ensi-bourges.fr>
+ * @author     Andreas Gohr <gohr@cosmocode.de>
  */
 // must be run within Dokuwiki
 if(!defined('DOKU_INC')) die();
-
-if(!defined('DOKU_PLUGIN')) define('DOKU_PLUGIN', DOKU_INC.'lib/plugins/');
-require_once(DOKU_PLUGIN.'syntax.php');
 
 /**
  * All DokuWiki plugins to extend the parser/rendering mechanism
  * need to inherit from this class
  */
 class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
-
-    /**
-     * return some info
-     */
-    function getInfo() {
-        return array(
-            'author' => 'Maxime Fonda - Thibault Coullet - J.-F. Lalande',
-            'email'  => 'jean-francois.lalande@ensi-bourges.fr,maxime.fonda@ensi-bourges.fr,thibault.coullet@ensi-bourges.fr',
-            'date'   => '26/06/2008',
-            'name'   => 'Dokuwiki statdisplay plugin',
-            'desc'   => 'Displays log statistics about your Dokuwiki',
-            'url'    => 'http://perso.ensi-bourges.fr/jfl/doku.php?id=wiki:statdisplay',
-        );
-    }
 
     /**
      * What kind of syntax are we?
@@ -57,32 +41,56 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
      * Connect pattern to lexer
      */
     function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('\{\{statdisplay>compute stats\}\}', $mode, 'plugin_statdisplay');
-        $this->Lexer->addSpecialPattern('\{\{statdisplay>all[^}]*\}\}', $mode, 'plugin_statdisplay');
-        $this->Lexer->addSpecialPattern('\{\{statdisplay>month by day[^}]*\}\}', $mode, 'plugin_statdisplay');
-        $this->Lexer->addSpecialPattern('\{\{statdisplay>month by hour[^}]*\}\}', $mode, 'plugin_statdisplay');
-        $this->Lexer->addSpecialPattern('\{\{statdisplay>one month[^}]*\}\}', $mode, 'plugin_statdisplay');
-        $this->Lexer->addSpecialPattern('\{\{statdisplay>top bytes[^}]*\}\}', $mode, 'plugin_statdisplay');
-        $this->Lexer->addSpecialPattern('\{\{statdisplay>top urls[^}]*\}\}', $mode, 'plugin_statdisplay');
-        $this->Lexer->addSpecialPattern('\{\{statdisplay>top entries[^}]*\}\}', $mode, 'plugin_statdisplay');
-        $this->Lexer->addSpecialPattern('\{\{statdisplay>top referers[^}]*\}\}', $mode, 'plugin_statdisplay');
-        $this->Lexer->addSpecialPattern('\{\{statdisplay>user agents[^}]*\}\}', $mode, 'plugin_statdisplay');
-        $this->Lexer->addSpecialPattern('\{\{statdisplay>progress bar\}\}', $mode, 'plugin_statdisplay');
+        $this->Lexer->addSpecialPattern('\{\{statdisplay>[^\}]+\}\}', $mode, 'plugin_statdisplay');
     }
 
     /**
      * Handle the match
      */
     function handle($match, $state, $pos, &$handler) {
+        $command = trim(substr($match, 14 ,-2));
+        list($command, $params) = explode('?', $command);
+        $params = explode(' ',$params);
 
-        return array($match, $state, $pos, $duree_visite);
+        $params = array_map('trim', $params);
+        $params = array_filter($params);
+
+        $pos = array_search('graph', $params);
+        if($pos !== FALSE){
+            $graph = true;
+            unset($params[$pos]);
+        } else {
+            $graph = false;
+        }
+
+        $data = array(
+            'command' => $command,
+            'params'  => $params,
+            'graph'   => $graph
+        );
+
+        return $data;
     }
 
     /**
      * Create output
      */
     function render($format, &$renderer, $data) {
+        $command = $data['command'];
+        $params  = $data['params'];
+        $graph   = $data['graph'];
 
+        // FIXME should be moved to action component
+        /** @var $helper helper_plugin_statdisplay_log */
+        $log = plugin_load('helper', 'statdisplay_log');
+        $log->parseLogData();
+
+        /** @var $table helper_plugin_statdisplay_table */
+        $table = plugin_load('helper', 'statdisplay_table');
+        $table->table($renderer, $command, $params);
+
+
+/*
         $statdisplay_daily_histogram  = DOKU_URL.'lib/plugins/statdisplay/daily_histogram.php';
         $statdisplay_resume_histogram = DOKU_URL.'lib/plugins/statdisplay/resume_histogram.php';
         $statdisplay_progress_bar     = DOKU_URL.'lib/plugins/statdisplay/progressbar.php';
@@ -107,30 +115,25 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
         $duree_visite         = 60 * $this->getConf('visit_time');
         $flag_graph           = FALSE;
 
-        if($data[0] == '{{statdisplay>compute stats}}' || $this->getConf('auto_compute_stats')) {
+        if($command == 'compute stats' || $this->getConf('auto_compute_stats')) {
             $_SESSION['need_update'] = TRUE;
             //$renderer->doc.= '<link rel="stylesheet" type="text/css" href="/lib/plugins/statdisplay/style.css" />';
         }
         include_once 'stat.php';
 
-        $param = explode('?', $data[0]);
-        $param = $param[1];
-        $param = trim($param, '}');
-        if(strstr($data[0], 'graph') != NULL)
-            $flag_graph = TRUE;
-        $param = explode(' ', $param);
 
-        if($param[0] == 'graph') {
-            if($param[1] != '')
-                $required = $param[1];
+        if($params[0] == 'graph') {
+            if($params[1] != '')
+                $required = $params[1];
             else
                 $required = $_SESSION['last_month'];
-        } else if($param[0] != '')
-            $required = $param[0];
-        else
+        } else if($params[0] != '') {
+            $required = $params[0];
+        } else {
             $required = $_SESSION['last_month'];
+        }
 
-        if($data[0] == '{{statdisplay>progress bar}}') {
+        if($command == 'progress bar') {
             //$renderer->doc .= '<img src="lib/plugins/statdisplay/progressbar.php?max='.$_SESSION['progress']['max'].'&amp;value='.$_SESSION['progress']['value'].'" alt="progress bar"></img>';
 
             $renderer->doc .= "<img src=\"";
@@ -142,7 +145,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
             $renderer->doc .= "\" alt=\"progress bar\"></img>";
         }
 
-        if(strstr($data[0], '{{statdisplay>one month') != NULL) {
+        if(strstr($command, 'one month') != NULL) {
             if($flag_graph)
                 $renderer->doc .= 'Cannot display graph statistics for one month';
             else {
@@ -151,7 +154,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
             }
         }
 
-        if(strstr($data[0], '{{statdisplay>user agents') != NULL) {
+        if(strstr($command, 'user agents') != NULL) {
             if($flag_graph)
                 $renderer->doc .= 'Cannot display graph statistics for user agents';
             else {
@@ -160,7 +163,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
             }
         }
 
-        if(strstr($data[0], '{{statdisplay>top referers') != NULL) {
+        if(strstr($command, '{{statdisplay>top referers') != NULL) {
             if($flag_graph)
                 $renderer->doc .= 'Cannot display graph statistics for top referers';
             else {
@@ -169,7 +172,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
             }
         }
 
-        if(strstr($data[0], '{{statdisplay>month by day') != NULL) {
+        if(strstr($command, '{{statdisplay>month by day') != NULL) {
             if($flag_graph) {
                 if(isset($_SESSION['statdisplay'][$required])) {
                     //$renderer->doc .= '<img src="' . $statdisplay_daily_histogram . '?title='.str_replace("_"," ",$required).' Daily Statistics&amp;type=31&amp;month='.$required.'" alt="month by day"></img>';
@@ -187,7 +190,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
             }
         }
 
-        if(strstr($data[0], '{{statdisplay>month by hour') != NULL) {
+        if(strstr($command, '{{statdisplay>month by hour') != NULL) {
             if($flag_graph) {
                 if(isset($_SESSION['statdisplay'][$required])) {
                     //$renderer->doc .= '<img src="' . $statdisplay_daily_histogram . '?title='.str_replace("_"," ",$required).' Hourly Statistics&amp;type=24&amp;month='.$required.'" alt="month by hour"></img>';
@@ -206,7 +209,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
             }
         }
 
-        if(strstr($data[0], '{{statdisplay>top bytes') != NULL) {
+        if(strstr($command, '{{statdisplay>top bytes') != NULL) {
             if($flag_graph)
                 $renderer->doc .= 'Cannot display graph statistics for top bytes';
             else {
@@ -215,7 +218,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
             }
         }
 
-        if(strstr($data[0], '{{statdisplay>top urls') != NULL) {
+        if(strstr($command, '{{statdisplay>top urls') != NULL) {
             if($flag_graph)
                 $renderer->doc .= 'Cannot display graph statistics for top url';
             else {
@@ -224,7 +227,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
             }
         }
 
-        if(strstr($data[0], '{{statdisplay>top entries') != NULL) {
+        if(strstr($command, '{{statdisplay>top entries') != NULL) {
             if($flag_graph)
                 $renderer->doc .= 'Cannot display graph statistics for user agents';
             else {
@@ -233,24 +236,21 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
             }
         }
 
-        if(strstr($data[0], '{{statdisplay>all') != NULL) {
-            $param = explode('?', $data[0]);
-            $param = $param[1];
-            $param = trim($param, '}');
-            if(strstr($data[0], 'graph') != NULL)
+        if(strstr($command, '{{statdisplay>all') != NULL) {
+            if(strstr($command, 'graph') != NULL)
                 $flag_graph = TRUE;
-            $param = explode(' ', $param);
+            $params = explode(' ', $params);
 
-            if($param[0] == 'graph') {
-                $begin = $param[1];
-                $end   = $param[2];
-            } else if($param[1] == 'graph') {
-                $begin = $param[0];
-                $end   = $param[2];
+            if($params[0] == 'graph') {
+                $begin = $params[1];
+                $end   = $params[2];
+            } else if($params[1] == 'graph') {
+                $begin = $params[0];
+                $end   = $params[2];
             } else //param[2]=='graph' ou pas
             {
-                $begin = $param[0];
-                $end   = $param[1];
+                $begin = $params[0];
+                $end   = $params[1];
             }
 
             if($flag_graph and isset($_SESSION['statdisplay'])) {
@@ -266,9 +266,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
                 $renderer->doc .= total_summary($begin, $end);
             }
         }
-
+*/
         return true;
     }
 }
-
-?>
