@@ -1,7 +1,7 @@
 <?php
 
 class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
-    public  $logdata = array();
+    public $logdata = array();
     private $logcache = '';
 
     /**
@@ -18,6 +18,9 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         }
     }
 
+    /**
+     * Parses the next chunk of logfile into our memory structure
+     */
     public function parseLogData() {
         // open handle
         $fh = fopen($this->getConf('accesslog'), 'r');
@@ -53,8 +56,12 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
             if($status == 200) {
                 $thistype = (substr($url, 0, 8) == '/_media/') ? 'media' : 'page';
 
+                // remember IPs
+                $newvisitor = !isset($this->logdata[$month]['ip'][$parts[0]]);
+                $this->logdata[$month]['ip'][$parts[0]]++;
+
                 // log type dependent and summarized
-                foreach(array($thistype, 'hits') as $type){
+                foreach(array($thistype, 'hits') as $type) {
                     $this->logdata[$month][$type]['all']['count']++;
                     $this->logdata[$month][$type]['day'][$day]['count']++;
                     $this->logdata[$month][$type]['hour'][$hour]['count']++;
@@ -62,71 +69,49 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
                     $this->logdata[$month][$type]['all']['bytes'] += $size;
                     $this->logdata[$month][$type]['day'][$day]['bytes'] += $size;
                     $this->logdata[$month][$type]['hour'][$hour]['bytes'] += $size;
+
+                    if($newvisitor) {
+                        $this->logdata[$month][$type]['all']['visitor']++;
+                        $this->logdata[$month][$type]['day'][$day]['visitor']++;
+                        $this->logdata[$month][$type]['hour'][$hour]['visitor']++;
+                    }
+                }
+
+                if($thistype == 'page') {
+                    // referer
+                    $referer = trim($parts[10], '"');
+                    if(substr($referer, 0, 4) == 'http') {
+                        list($referer) = explode('?', $referer);
+                        $this->logdata[$month]['referer']['count']++;
+                        $this->logdata[$month]['referer_url'][$referer]++;
+                    }
+
+                    // entry page
+                    if($newvisitor) {
+                        $this->logdata[$month]['entry'][$url]++;
+                    }
+
+                    // user agent FIXME use browser agent library
+                    $ua = trim( join(' ', array_slice($parts,11)), '" ');
+                    $this->logdata[$month]['useragent'][$ua]++;
                 }
             }
 
-            $this->logdata[$month]['status']['all'][$status] ++;
-            $this->logdata[$month]['status']['day'][$day][$status] ++;
-            $this->logdata[$month]['status']['hour'][$hour][$status] ++;
-
+            $this->logdata[$month]['status']['all'][$status]++;
+            $this->logdata[$month]['status']['day'][$day][$status]++;
+            $this->logdata[$month]['status']['hour'][$hour][$status]++;
         }
-
         $this->logdata['_logpos'] = $pos;
+
+        // clean up the last month, freeing memory
+        if($this->logdata['_lastmonth'] != $month){
+            // FIXME shorten IPs, referers, entry pages, user agents
+
+            $this->logdata['_lastmonth'] = $month;
+        }
 
         // save the data
         io_saveFile($this->logcache, serialize($this->logdata));
-
-        /*
-
-            //Bloc gestion des visites & pages d'entree
-            $tmp = date_to_timestamp($date_string);
-            if(!isset($ip[$parts[0]]) || ($ip[$parts[0]] + $duree_visite) < $tmp) {
-                $this->logcache[$month]['jour']['visits'][$date[0]]++;
-                $this->logcache[$month]['resume']['visits']++;
-                $this->logcache[$month]['heure']['visits'][intval($hour[1])]++;
-                if($this->logcache[$month]['url']['is_page'][$parts[6]]) {
-                    $this->logcache[$month]['entree'][$parts[6]]++;
-                    $this->logcache[$month]['resume']['entree']++;
-                }
-                $ip[$parts[0]] = $tmp;
-            }
-            $_SESSION['last_visit'] = $tmp;
-
-            if(strstr($parts[10], '"http') != NULL) //Referrers
-            {
-                $parts[10] = trim($parts[10], '"');
-                $tmp       = explode('?', $parts[10]);
-                $referer   = $tmp[0];
-                $this->logcache[$month]['referers_url'][$referer]++;
-                $tmp      = explode('/', $referer);
-                $referer1 = $tmp[2];
-                $this->logcache[$month]['referers_domain'][$referer1]++;
-                $this->logcache[$month]['referers_total']++;
-            }
-        }
-        //fin  du if ==200
-
-        $this->logcache[$month]['jour']['hits'][$date[0]]++; //Dans tt les cas on augmente hits
-        $this->logcache[$month]['resume']['hits']++;
-        $this->logcache[$month]['heure']['hits'][intval($hour[1])]++;
-        if($this->logcache[$month]['url']['is_page'][$parts[6]])
-            $this->logcache[$month]['url']['hits'][$parts[6]]++;
-
-        if(!is_numeric($parts[7]))
-            $this->logcache[$month]['resume'][$parts[8]]++;
-        else if(!is_numeric($parts[6]))
-            $this->logcache[$month]['resume'][$parts[7]]++;
-
-        if(strlen($parts[11]) > 4) {
-            $parts[11] = trim($parts[11], "\";\n");
-            $this->logcache[$month]['agents_moteur'][$parts[11]]++;
-        }
-
-        $parts = explode('"', $line);
-        if(strlen($parts[5]) > 4)
-            $this->logcache[$month]['agents_complet'][$parts[5]]++;
-        */
-
     }
 
     /**
@@ -136,16 +121,16 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
      * @param $key
      * @return int
      */
-    public function avg($input, $key){
+    public function avg($input, $key) {
         $cnt = 0;
         $all = 0;
-        foreach((array) $input as $item){
+        foreach((array) $input as $item) {
             $all += $item[$key];
             $cnt++;
         }
 
         if(!$cnt) return 0;
-        return round($all/$cnt);
+        return round($all / $cnt);
     }
 
     /**
@@ -155,9 +140,9 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
      * @param $key
      * @return int
      */
-    public function max($input, $key){
+    public function max($input, $key) {
         $max = 0;
-        foreach((array) $input as $item){
+        foreach((array) $input as $item) {
             if($item[$key] > $max) $max = $item[$key];
         }
 

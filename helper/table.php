@@ -85,8 +85,8 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
             $this->cell($data['page'][$by][$idx]['count']);
             $this->cell($this->pct($data['page'][$by][$idx]['count'], $data['page']['all']['count']));
 
-            $this->cell();
-            $this->cell();
+            $this->cell($data['hits'][$by][$idx]['visitor']);
+            $this->cell($this->pct($data['hits'][$by][$idx]['visitor'], $data['hits']['all']['visitor']));
 
             $this->cell(filesize_h($data['hits'][$by][$idx]['bytes']));
             $this->cell($this->pct($data['hits'][$by][$idx]['bytes'], $data['hits']['all']['bytes']));
@@ -129,8 +129,8 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
-        $this->hcell('Total visits');
-        $this->cell('', 2);
+        $this->hcell('Total visitors');
+        $this->cell($data['page']['all']['visitor'], 2);
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
@@ -210,9 +210,9 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         $this->head('Hits');
         $this->head('Files');
         $this->head('Pages');
-        $this->head('Visits');
+        $this->head('Visitors');
         $this->head('Bytes');
-        $this->head('Visits');
+        $this->head('Visitors');
         $this->head('Pages');
         $this->head('Files');
         $this->head('Hits');
@@ -228,10 +228,10 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
             $this->cell($this->log->avg($data['hits']['day'], 'count')); // Hits
             $this->cell($this->log->avg($data['media']['day'], 'count')); // Files
             $this->cell($this->log->avg($data['page']['day'], 'count')); // Pages
-            $this->cell(''); // Visits
+            $this->cell($this->log->avg($data['hits']['day'], 'visitor')); // Visits
             // ---- totals ----
             $this->cell(filesize_h($data['hits']['all']['bytes'])); // kBytes
-            $this->cell(''); // Visits
+            $this->cell($data['hits']['all']['visitor']); // Visitors
             $this->cell($data['page']['all']['count']); // Pages
             $this->cell($data['media']['all']['count']); // Files
             $this->cell($data['hits']['all']['count']); // Hits
