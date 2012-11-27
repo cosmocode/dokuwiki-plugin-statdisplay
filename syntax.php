@@ -76,6 +76,10 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
      * Create output
      */
     function render($format, &$renderer, $data) {
+        if($format != 'xhtml') return true;
+
+        dbg($data);
+
         $command = $data['command'];
         $params  = $data['params'];
         $graph   = $data['graph'];
@@ -86,8 +90,16 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
         $log->parseLogData();
 
         /** @var $table helper_plugin_statdisplay_table */
-        $table = plugin_load('helper', 'statdisplay_table');
-        $table->table($renderer, $command, $params);
+        if(!$graph){
+            $table = plugin_load('helper', 'statdisplay_table');
+            $table->table($renderer, $command, $params);
+        }else{
+            $img = array(
+                'src' => DOKU_BASE.'lib/plugins/statdisplay/graph.php?graph='.rawurlencode($command),
+                'class' => 'media'
+            );
+            $renderer->doc .= '<img  '.buildAttributes($img).'/>';
+        }
 
 
 /*

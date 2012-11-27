@@ -48,7 +48,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
 
             $month = date('Y-m', $date);
             $day   = date('d', $date);
-            $hour  = date('H', $date);
+            $hour  = date('G', $date);
             list($url) = explode('?', $parts[6]); // strip GET vars
             $status = $parts[8];
             $size   = $parts[9];
@@ -62,6 +62,10 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
 
                 // log type dependent and summarized
                 foreach(array($thistype, 'hits') as $type) {
+                    // we need these in perfect order
+                    if(!isset($this->logdata[$month][$type]['hour']))
+                        $this->logdata[$month][$type]['hour'] = array_fill(0, 23, array());
+
                     $this->logdata[$month][$type]['all']['count']++;
                     $this->logdata[$month][$type]['day'][$day]['count']++;
                     $this->logdata[$month][$type]['hour'][$hour]['count']++;
@@ -95,6 +99,11 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
                     $ua = trim( join(' ', array_slice($parts,11)), '" ');
                     $this->logdata[$month]['useragent'][$ua]++;
                 }
+            }else{
+                // count non-200 as a hit too
+                $this->logdata[$month]['hits']['all']['count']++;
+                $this->logdata[$month]['hits']['day'][$day]['count']++;
+                $this->logdata[$month]['hits']['hour'][$hour]['count']++;
             }
 
             $this->logdata[$month]['status']['all'][$status]++;

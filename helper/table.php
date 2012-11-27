@@ -54,6 +54,9 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      * @param string $date
      */
     private function monthby($by, $date = ''){
+
+        //dbg($this->log->logdata);
+
         if(!$date) $date = date('Y-m');
         $data = $this->log->logdata[$date];
 
@@ -72,7 +75,7 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         $this->head('Bytes',2);
         $this->R->tablerow_close();
 
-        foreach(array_keys($data['hits'][$by]) as $idx){
+        foreach(array_keys((array) $data['hits'][$by]) as $idx){
             $this->R->tablerow_open();
             $this->hcell($idx);
 
@@ -178,15 +181,13 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         $this->head('Hits by Status Code',3);
         $this->R->tablerow_close();
 
-        foreach($this->log->logdata[$date]['status']['all'] as $code => $count ){
+        foreach((array) $this->log->logdata[$date]['status']['all'] as $code => $count ){
             $this->R->tablerow_open();
             $this->hcell('Status '.$code);
             $this->cell($count, 2);
             $this->R->tablerow_close();
         }
 
-
-        dbg($this->log->logdata);
         $this->R->table_close();
     }
 
