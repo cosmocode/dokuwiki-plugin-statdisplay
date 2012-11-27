@@ -29,7 +29,10 @@
  */
 class Color {
 
-    public function __construct($red, $green = FALSE, $blue = FALSE) {
+    public function __construct($red, $green = null, $blue = null) {
+        if(is_null($green)) $green = $red;
+        if(is_null($blue))  $blue  = $red;
+
         if ($red < 0 || $red > 255) {
             throw new InvalidArgumentException("Invalid Red component");
         }
@@ -41,15 +44,6 @@ class Color {
         if ($blue < 0 || $blue > 255) {
             throw new InvalidArgumentException("Invalid Blue component");
         }
-        if (!$green && !$blue) {
-            if ($red < 0 || $red > 255) {
-                throw new InvalidArgumentException("Invalid Unicolor component");
-            } else {
-                $green = $red;
-                $blue = $red;
-            }
-        }
-
 
         $this->r = $red;
         $this->g = $green;
