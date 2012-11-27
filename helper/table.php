@@ -54,25 +54,24 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      * @param string $date
      */
     private function monthby($by, $date = ''){
-
-        //dbg($this->log->logdata);
-
         if(!$date) $date = date('Y-m');
         $data = $this->log->logdata[$date];
+
+        $title = sprintf($this->getLang('t_'.$by), $date);
 
         $this->R->table_open();
 
         $this->R->tablerow_open();
-        $this->head($by.'ly Statistics for '.$date, 11); //FIXME
+        $this->head($title, 11); //FIXME
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
-        $this->head('Day');
-        $this->head('Hits',2);
-        $this->head('Files',2);
-        $this->head('Pages',2);
-        $this->head('Visits',2);
-        $this->head('Bytes',2);
+        $this->head($this->getLang('day'));
+        $this->head($this->getLang('hits'),2);
+        $this->head($this->getLang('media'),2);
+        $this->head($this->getLang('pages'),2);
+        $this->head($this->getLang('visitors'),2);
+        $this->head($this->getLang('traffic'),2);
         $this->R->tablerow_close();
 
         foreach(array_keys((array) $data['hits'][$by]) as $idx){
@@ -183,7 +182,7 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
 
         foreach((array) $this->log->logdata[$date]['status']['all'] as $code => $count ){
             $this->R->tablerow_open();
-            $this->hcell('Status '.$code);
+            $this->hcell('Status '.$code.' - '.$this->getLang('status_'.$code));
             $this->cell($count, 2);
             $this->R->tablerow_close();
         }
