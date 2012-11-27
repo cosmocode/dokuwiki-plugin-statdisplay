@@ -10,44 +10,53 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
     /**
      * @param Doku_Renderer  $R
      * @param string         $command  type of statistic
-     * @param string         $date     restrict to this month
+     * @param string         $from     restrict to this month
+     * @param string         $to       end interval
      * @return void
      */
-    public function table($R, $command, $date = '') {
+    public function table($R, $command, $from = '', $to='') {
         $this->R   = $R;
         $this->log = plugin_load('helper', 'statdisplay_log');
 
         switch($command) {
             case 'all':
-                $this->summary();
+                $this->summary($from, $to);
                 break;
             case 'one month':
-                $this->month();
+                $this->month($from);
                 break;
             case 'month by day':
-                $this->monthby('day');
+                $this->monthby('day', $from);
                 break;
             case 'month by hour':
-                $this->monthby('hour');
+                $this->monthby('hour', $from);
                 break;
             case 'top referers':
-                $this->referer();
+                $this->referer($from);
                 break;
             case 'top entries':
-                $this->entry();
+                $this->entry($from);
                 break;
             case 'top urls':
+                $this->url($from);
                 break;
             case 'top bytes':
                 break;
             case 'user agents':
-                $this->ua();
+                $this->ua($from);
                 break;
-
+            case 'progress bar':
+                $this->progress();
+                break;
             default:
-                $R->cdata('Unknown statistic '.$command);
+                $R->cdata('No such table: '.$command);
 
         }
+    }
+
+    private function progress(){
+        $pct = sprintf('%.2f', $this->log->progress());
+        $this->R->doc .= '<div class="statdisplay-progress" title="'.$pct.'%"><span style="width: '.$pct.'%"></span></div>';
     }
 
     /**
@@ -87,44 +96,15 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
     }
 
     /**
-     * Print a simple listing table
+     * Print top pages for a given month
      *
-     * @param $data
-     * @param $max
-     * @param $title
+     * @param string $date
      */
-    private function listtable(&$data, $max, $title){
-        if(!$data) $data = array();
-
-        arsort($data);
-        $row = 1;
-
-        $this->R->table_open();
-
-        $this->R->tablerow_open();
-        $this->head($title, 4);
-        $this->R->tablerow_close();
-
-        $this->R->tablerow_open();
-        $this->head('#');
-        $this->head('Name');
-        $this->head('Hits', 2);
-        $this->R->tablerow_close();
-
-
-        foreach($data as $key => $count){
-            $this->R->tablerow_open();
-            $this->cell($row);
-            $this->hcell($key);
-            $this->cell($count);
-            $this->cell($this->pct($count, $max));
-            $this->R->tablerow_close();
-            $row++;
-            if($row > $this->log->top_limit) break;
-        }
-
-
-        $this->R->table_close();
+    private function url($date=''){
+        if(!$date) $date = date('Y-m');
+        $this->listtable($this->log->logdata[$date]['page_url'],
+                         $this->log->logdata[$date]['page']['all']['count'],
+                         'Top Pages in '.$date);
     }
 
     /**
@@ -273,7 +253,7 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
     /**
      * print the whole summary table
      */
-    private function summary() {
+    private function summary($from='', $to='') {
         $this->R->table_open();
 
         $this->R->tablerow_open();
@@ -298,12 +278,14 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         $this->head('Hits');
         $this->R->tablerow_close();
 
-        foreach($this->log->logdata as $ym => $data) {
-            if($ym{0} == '_') continue;
+        foreach($this->log->logdata as $month => $data) {
+            if($month{0} == '_') continue;
+            if($from && $month < $from) continue;
+            if($to && $month > $to) break;
 
             $this->R->tablerow_open();
 
-            $this->cell($ym, 1, false); // Month
+            $this->cell($month, 1, false); // Month
             // ---- averages ----
             $this->cell($this->log->avg($data['hits']['day'], 'count')); // Hits
             $this->cell($this->log->avg($data['media']['day'], 'count')); // Files
@@ -317,6 +299,46 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
             $this->cell($data['hits']['all']['count']); // Hits
 
             $this->R->tablerow_close();
+        }
+
+        $this->R->table_close();
+    }
+
+    /**
+     * Print a simple listing table
+     *
+     * @param $data
+     * @param $max
+     * @param $title
+     */
+    private function listtable(&$data, $max, $title){
+        if(!$data) $data = array();
+
+        arsort($data);
+        $row = 1;
+
+        $this->R->table_open();
+
+        $this->R->tablerow_open();
+        $this->head($title, 4);
+        $this->R->tablerow_close();
+
+        $this->R->tablerow_open();
+        $this->head('#');
+        $this->head('Name');
+        $this->head('Hits', 2);
+        $this->R->tablerow_close();
+
+
+        foreach($data as $key => $count){
+            $this->R->tablerow_open();
+            $this->cell($row);
+            $this->hcell($key);
+            $this->cell($count);
+            $this->cell($this->pct($count, $max));
+            $this->R->tablerow_close();
+            $row++;
+            if($row > $this->log->top_limit) break;
         }
 
         $this->R->table_close();

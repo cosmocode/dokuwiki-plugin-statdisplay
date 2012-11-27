@@ -7,10 +7,12 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
     /**
      * Outputs a Graph image
      *
-     * @param        $command
-     * @param string $date
+     * @param  string $command
+     * @param  string $from
+     * @param  string $to
+     * @return void
      */
-    public function sendgraph($command, $date = '') {
+    public function sendgraph($command, $from = '', $to='') {
         require dirname(__FILE__).'/../pchart/pData.php';
         require dirname(__FILE__).'/../pchart/pChart.php';
         require dirname(__FILE__).'/../pchart/GDCanvas.php';
@@ -24,16 +26,16 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
                 $this->summary();
                 break;
             case 'month by day':
-                $this->monthby('day');
+                $this->monthby('day', $from);
                 break;
             case 'month by hour':
-                $this->monthby('hour');
+                $this->monthby('hour', $from);
                 break;
             case 'traffic by day':
-                $this->trafficby('day');
+                $this->trafficby('day', $from);
                 break;
             case 'traffic by hour':
-                $this->trafficby('hour');
+                $this->trafficby('hour', $from);
                 break;
             default:
                 $this->nograph('No such graph: '.$command);
@@ -41,7 +43,14 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
         }
     }
 
-    private function summary() {
+    /**
+     * Show all the access data
+     *
+     * @param string $from
+     * @param string $to
+     * @return void
+     */
+    private function summary($from='', $to='') {
         $times    = array();
         $hits     = array();
         $pages    = array();
@@ -50,6 +59,9 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
 
         foreach($this->log->logdata as $month => $data) {
             if($month{0} == '_') continue;
+            if($from && $month < $from) continue;
+            if($to && $month > $to) break;
+
             $times[]    = $month;
             $pages[]    = $data['page']['all']['count'];
             $media[]    = $data['media']['all']['count'];
@@ -72,6 +84,12 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
         );
     }
 
+    /**
+     * Show month access by day or hour
+     *
+     * @param string $by  either day or hour
+     * @param string $date
+     */
     private function monthby($by, $date = '') {
         if(!$date) $date = date('Y-m');
         $data = $this->log->logdata[$date];
@@ -105,6 +123,12 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
         );
     }
 
+    /**
+     * Show month traffic by day or hour
+     *
+     * @param string $by  either day or hour
+     * @param string $date
+     */
     private function trafficby($by, $date = '') {
         if(!$date) $date = date('Y-m');
         $data = $this->log->logdata[$date];

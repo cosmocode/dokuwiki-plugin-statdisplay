@@ -1,0 +1,12 @@
+div.statdisplay-progress {
+    width: 150px;
+    height: 15px;
+    background-color: __background_alt__;
+    border: 1px solid __text_alt__;
+}
+
+div.statdisplay-progress span {
+    display: block;
+    height: 100%;
+    background-color: __text_alt__;
+}

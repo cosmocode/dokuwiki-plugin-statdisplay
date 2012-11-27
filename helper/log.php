@@ -27,6 +27,17 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
     }
 
     /**
+     * Return the progress of the log analysis
+     *
+     * @return float
+     */
+    public function progress(){
+        $pos = (int) $this->logdata['_logpos'];
+        $max = @filesize($this->logfile);
+        return $pos*100/$max;
+    }
+
+    /**
      * Parses the next chunk of logfile into our memory structure
      */
     public function parseLogData() {
@@ -37,7 +48,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         $pos = 0;
         if(isset($this->logdata['_logpos'])) $pos = $this->logdata['_logpos'];
         if($pos > $size) $pos = 0;
-        if($pos && $size - $pos < $this->max_lines_per_run * 200) return 0; // we want to have some minimal log data
+        if($pos && $size - $pos < $this->max_lines_per_run * 150) return 0; // we want to have some minimal log data
 
         if(!$this->lock()) return 0;
 
