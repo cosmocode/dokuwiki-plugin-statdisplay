@@ -81,11 +81,6 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
         $params  = $data['params'];
         $graph   = $data['graph'];
 
-        // FIXME should be moved to action component
-        /** @var $helper helper_plugin_statdisplay_log */
-        $log = plugin_load('helper', 'statdisplay_log');
-        $log->parseLogData();
-
         /** @var $table helper_plugin_statdisplay_table */
         if(!$graph){
             $table = plugin_load('helper', 'statdisplay_table');

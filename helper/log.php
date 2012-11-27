@@ -3,6 +3,7 @@
 class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
     public $logdata = array();
     private $logcache = '';
+    private $logfile = '';
 
     /**
      * Constructor
@@ -10,9 +11,12 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
      * Loads the cache
      */
     public function __construct() {
-        $this->logcache = getCacheName($this->getConf('accesslog'), '.statdisplay');
+        $this->logfile =  fullpath(DOKU_INC . $this->getConf('accesslog'));
+        // file not found? assume absolute path
+        if(!file_exists($this->logfile)) $this->logfile = $this->getConf('accesslog');
 
         // load the cache file
+        $this->logcache = getCacheName($this->logfile, '.statdisplay');
         if(file_exists($this->logcache)) {
             $this->logdata = unserialize(io_readFile($this->logcache, false));
         }
@@ -22,18 +26,22 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
      * Parses the next chunk of logfile into our memory structure
      */
     public function parseLogData() {
-        // open handle
-        $fh = fopen($this->getConf('accesslog'), 'r');
-        if(!$fh) return;
-
         // continue from last position
+        $size = filesize($this->logfile);
+        if(!$size) return 0;
+
         $pos = 0;
         if(isset($this->logdata['_logpos'])) $pos = $this->logdata['_logpos'];
-        if($pos > filesize($this->getConf('accesslog'))) $pos = 0;
+        if($pos > $size) $pos = 0;
+        if($pos && $size-$pos < 30000) return 0; // we want at least 30k of log data
+
+        // open handle
+        $fh = fopen($this->logfile, 'r');
+        if(!$fh) return 0;
         fseek($fh, $pos, SEEK_SET);
 
         $lines             = 0;
-        $max_lines_per_run = 200;
+        $max_lines_per_run = 500;
 
         // read lines
         while(feof($fh) == 0 && $lines < $max_lines_per_run) {
@@ -126,6 +134,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
 
         // save the data
         io_saveFile($this->logcache, serialize($this->logdata));
+        return $lines;
     }
 
     /**
