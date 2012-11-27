@@ -36,7 +36,7 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
                 $this->trafficby('hour');
                 break;
             default:
-                echo file_get_contents(dirname(__FILE__).'/../nope.png');
+                $this->nograph('No such graph: '.$command);
                 break;
         }
     }
@@ -135,7 +135,20 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
         );
     }
 
+    /**
+     * Draws a line or bargraph depending on the number of data points
+     *
+     * @param string $title the graph's title
+     * @param array  $axis the axis points
+     * @param array  $labels the labels for the datasets
+     * @param array  $datasets any number of data arrays
+     */
     private function accessgraph($title, $axis, $labels, $datasets) {
+        if(!count($axis)) {
+            $this->nograph($title.': no data');
+            return;
+        }
+
         // add the data and labels
         $DataSet = new pData();
         foreach($datasets as $num => $set) {
@@ -174,4 +187,16 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
         $Chart->Render(null);
     }
 
+    /**
+     * Just creates a message
+     *
+     * @param $title
+     */
+    private function nograph($title) {
+        $Canvas = new GDCanvas(300, 40, false);
+        $Chart  = new pChart(300, 40, $Canvas);
+        $Chart->setFontProperties(dirname(__FILE__).'/../pchart/Fonts/DroidSans.ttf', 10);
+        $Chart->drawTitle(0, 0, $title, new Color(128, 0, 0), 300, 40);
+        $Chart->Render(null);
+    }
 }
