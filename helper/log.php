@@ -55,6 +55,11 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
 
             if($status == 200) {
                 $thistype = (substr($url, 0, 8) == '/_media/') ? 'media' : 'page';
+                if($thistype == 'page'){
+                    // for analyzing webserver logs we consider all known extensions as media files
+                    list($ext) = mimetype($url);
+                    if($ext !== false) $thistype = 'media';
+                }
 
                 // remember IPs
                 $newvisitor = !isset($this->logdata[$month]['ip'][$parts[0]]);
