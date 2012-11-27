@@ -31,20 +31,100 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
                 $this->monthby('hour');
                 break;
             case 'top referers':
+                $this->referer();
                 break;
             case 'top entries':
+                $this->entry();
                 break;
             case 'top urls':
                 break;
             case 'top bytes':
                 break;
             case 'user agents':
+                $this->ua();
                 break;
 
             default:
                 $R->cdata('Unknown statistic '.$command);
 
         }
+    }
+
+    /**
+     * Print referers for a given month
+     *
+     * @param string $date
+     */
+    private function referer($date=''){
+        if(!$date) $date = date('Y-m');
+        $this->listtable($this->log->logdata[$date]['referer_url'],
+                         $this->log->logdata[$date]['referer']['count'],
+                         'Top Referrers in '.$date);
+    }
+
+    /**
+     * Print top entry pages for a given month
+     *
+     * @param string $date
+     */
+    private function entry($date=''){
+        if(!$date) $date = date('Y-m');
+        $this->listtable($this->log->logdata[$date]['entry'],
+                         $this->log->logdata[$date]['page']['all']['count'],
+                         'Top Entry Pages in '.$date);
+    }
+
+    /**
+     * Print top user agents for a given month
+     *
+     * @param string $date
+     */
+    private function ua($date=''){
+        if(!$date) $date = date('Y-m');
+        $this->listtable($this->log->logdata[$date]['useragent'],
+                         $this->log->logdata[$date]['page']['all']['count'],
+                         'Top User Agents in '.$date);
+    }
+
+    /**
+     * Print a simple listing table
+     *
+     * @param $data
+     * @param $max
+     * @param $title
+     */
+    private function listtable(&$data, $max, $title){
+        if(!$data) $data = array();
+
+        arsort($data);
+        $row = 1;
+
+        $this->R->table_open();
+
+        $this->R->tablerow_open();
+        $this->head($title, 4);
+        $this->R->tablerow_close();
+
+        $this->R->tablerow_open();
+        $this->head('#');
+        $this->head('Name');
+        $this->head('Hits', 2);
+        $this->R->tablerow_close();
+
+
+        foreach($data as $key => $count){
+            $this->R->tablerow_open();
+            $this->cell($row);
+            $this->hcell($key);
+            $this->cell($count);
+            $this->cell($this->pct($count, $max));
+            $this->R->tablerow_close();
+            $row++;
+            if($row > 30) break;
+        }
+
+
+        $this->R->table_close();
     }
 
     /**
@@ -62,7 +142,7 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         $this->R->table_open();
 
         $this->R->tablerow_open();
-        $this->head($title, 11); //FIXME
+        $this->head($title, 11);
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();

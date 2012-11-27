@@ -4,6 +4,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
     public $logdata = array();
     private $logcache = '';
     private $logfile = '';
+    private $browscap = null;
 
     /**
      * Constructor
@@ -11,7 +12,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
      * Loads the cache
      */
     public function __construct() {
-        $this->logfile =  fullpath(DOKU_INC . $this->getConf('accesslog'));
+        $this->logfile = fullpath(DOKU_INC.$this->getConf('accesslog'));
         // file not found? assume absolute path
         if(!file_exists($this->logfile)) $this->logfile = $this->getConf('accesslog');
 
@@ -26,14 +27,14 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
      * Parses the next chunk of logfile into our memory structure
      */
     public function parseLogData() {
-        // continue from last position
         $size = filesize($this->logfile);
         if(!$size) return 0;
 
+        // continue from last position
         $pos = 0;
         if(isset($this->logdata['_logpos'])) $pos = $this->logdata['_logpos'];
         if($pos > $size) $pos = 0;
-        if($pos && $size-$pos < 30000) return 0; // we want at least 30k of log data
+        if($pos && $size - $pos < 30000) return 0; // we want at least 30k of log data
 
         // open handle
         $fh = fopen($this->logfile, 'r');
@@ -63,7 +64,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
 
             if($status == 200) {
                 $thistype = (substr($url, 0, 8) == '/_media/') ? 'media' : 'page';
-                if($thistype == 'page'){
+                if($thistype == 'page') {
                     // for analyzing webserver logs we consider all known extensions as media files
                     list($ext) = mimetype($url);
                     if($ext !== false) $thistype = 'media';
@@ -97,7 +98,8 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
                 if($thistype == 'page') {
                     // referer
                     $referer = trim($parts[10], '"');
-                    if(substr($referer, 0, 4) == 'http') {
+                    // skip non valid and local referers
+                    if(substr($referer, 0, 4) == 'http' && (strstr($referer, DOKU_URL) !== 0)){
                         list($referer) = explode('?', $referer);
                         $this->logdata[$month]['referer']['count']++;
                         $this->logdata[$month]['referer_url'][$referer]++;
@@ -108,11 +110,14 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
                         $this->logdata[$month]['entry'][$url]++;
                     }
 
-                    // user agent FIXME use browser agent library
-                    $ua = trim( join(' ', array_slice($parts,11)), '" ');
-                    $this->logdata[$month]['useragent'][$ua]++;
+                    // user agent
+                    $ua = trim(join(' ', array_slice($parts, 11)), '" ');
+                    if($ua){
+                        $ua = $this->ua($ua);
+                        $this->logdata[$month]['useragent'][$ua]++;
+                    }
                 }
-            }else{
+            } else {
                 // count non-200 as a hit too
                 $this->logdata[$month]['hits']['all']['count']++;
                 $this->logdata[$month]['hits']['day'][$day]['count']++;
@@ -126,7 +131,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         $this->logdata['_logpos'] = $pos;
 
         // clean up the last month, freeing memory
-        if($this->logdata['_lastmonth'] != $month){
+        if($this->logdata['_lastmonth'] != $month) {
             // FIXME shorten IPs, referers, entry pages, user agents
 
             $this->logdata['_lastmonth'] = $month;
@@ -135,6 +140,22 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         // save the data
         io_saveFile($this->logcache, serialize($this->logdata));
         return $lines;
+    }
+
+    /**
+     * Returns the common user agent name and version as a string
+     *
+     * @param $useragent
+     * @return string
+     */
+    private function ua($useragent) {
+        if(is_null($this->browscap)) {
+            require dirname(__FILE__).'/../StatisticsBrowscap.class.php';
+            $this->browscap = new StatisticsBrowscap();
+        }
+        $ua = $this->browscap->getBrowser($useragent);
+        list($version) = explode('.', $ua->Version);
+        return trim($ua->Browser.' '.$version);
     }
 
     /**
