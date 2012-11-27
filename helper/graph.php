@@ -57,12 +57,22 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
             $visitors[] = $data['hits']['all']['visitor'];
         }
 
-        $title = 'Accesses';
+        $title = $this->getLang('t_summary');
 
-        $this->accessgraph($title, $times, array('Hits', 'Pages', 'Files', 'Visitors'), array($hits, $pages, $media, $visitors));
+        $this->accessgraph(
+            $title,
+            $times,
+            array(
+                 $this->getLang('hits'),
+                 $this->getLang('pages'),
+                 $this->getLang('media'),
+                 $this->getLang('visitors'),
+            ),
+            array($hits, $pages, $media, $visitors)
+        );
     }
 
-    private function monthby($by, $date='') {
+    private function monthby($by, $date = '') {
         if(!$date) $date = date('Y-m');
         $data = $this->log->logdata[$date];
 
@@ -72,7 +82,7 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
         $media    = array();
         $visitors = array();
 
-        foreach(array_keys((array) $data['hits'][$by]) as $idx){
+        foreach(array_keys((array) $data['hits'][$by]) as $idx) {
             $times[]    = $idx;
             $pages[]    = $data['page'][$by][$idx]['count'];
             $media[]    = $data['media'][$by][$idx]['count'];
@@ -80,37 +90,55 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
             $visitors[] = $data['hits'][$by][$idx]['visitor'];
         }
 
-        $title = 'Accesses';
+        $title = sprintf($this->getLang('t_'.$by), $date);
 
-        $this->accessgraph($title, $times, array('Hits', 'Pages', 'Files', 'Visitors'), array($hits, $pages, $media, $visitors));
+        $this->accessgraph(
+            $title,
+            $times,
+            array(
+                 $this->getLang('hits'),
+                 $this->getLang('pages'),
+                 $this->getLang('media'),
+                 $this->getLang('visitors'),
+            ),
+            array($hits, $pages, $media, $visitors)
+        );
     }
 
-    private function trafficby($by, $date='') {
+    private function trafficby($by, $date = '') {
         if(!$date) $date = date('Y-m');
         $data = $this->log->logdata[$date];
 
-        $times    = array();
-        $hits     = array();
-        $pages    = array();
-        $media    = array();
+        $times = array();
+        $hits  = array();
+        $pages = array();
+        $media = array();
 
-        foreach(array_keys((array) $data['hits'][$by]) as $idx){
-            $times[]    = $idx;
-            $pages[]    = $data['page'][$by][$idx]['bytes']/1024;
-            $media[]    = $data['media'][$by][$idx]['bytes']/1024;
-            $hits[]     = $data['hits'][$by][$idx]['bytes']/1024;
+        foreach(array_keys((array) $data['hits'][$by]) as $idx) {
+            $times[] = $idx;
+            $pages[] = $data['page'][$by][$idx]['bytes'] / 1024;
+            $media[] = $data['media'][$by][$idx]['bytes'] / 1024;
+            $hits[]  = $data['hits'][$by][$idx]['bytes'] / 1024;
         }
 
         $title = 'Traffic';
 
-        $this->accessgraph($title, $times, array('All', 'Pages', 'Files'), array($hits, $pages, $media));
+        $this->accessgraph(
+            $title,
+            $times,
+            array(
+                 $this->getLang('all'),
+                 $this->getLang('pages'),
+                 $this->getLang('media'),
+            ),
+            array($hits, $pages, $media)
+        );
     }
-
 
     private function accessgraph($title, $axis, $labels, $datasets) {
         // add the data and labels
         $DataSet = new pData();
-        foreach($datasets as $num => $set){
+        foreach($datasets as $num => $set) {
             $DataSet->AddPoints($set, "series$num");
             $DataSet->SetSeriesName($labels[$num], "series$num");
         }
@@ -122,9 +150,8 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
         $DataSet->removeSeries('times');
         $DataSet->removeSeriesName('times');
 
-
-        $Canvas = new GDCanvas(600, 300, false);
-        $Chart  = new pChart(600, 300, $Canvas);
+        $Canvas      = new GDCanvas(600, 300, false);
+        $Chart       = new pChart(600, 300, $Canvas);
         $usebargraph = (count($axis) < 10);
 
         $Chart->setFontProperties(dirname(__FILE__).'/../pchart/Fonts/DroidSans.ttf', 8);
@@ -134,14 +161,14 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
             45, 1, $usebargraph
         );
 
-        if($usebargraph){
+        if($usebargraph) {
             $Chart->drawBarGraph($DataSet->GetData(), $DataSet->GetDataDescription());
-        }else{
+        } else {
             $Chart->drawLineGraph($DataSet->GetData(), $DataSet->GetDataDescription());
         }
         $Chart->drawLegend(500, 40, $DataSet->GetDataDescription(), new Color(250));
 
-        $Chart->setFontProperties(dirname(__FILE__).'/../pchart/Fonts/DroidSans.ttf', 15);
+        $Chart->setFontProperties(dirname(__FILE__).'/../pchart/Fonts/DroidSans.ttf', 12);
         $Chart->drawTitle(10, 10, $title, new Color(0), 590, 30);
 
         $Chart->Render(null);

@@ -77,9 +77,6 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
      */
     function render($format, &$renderer, $data) {
         if($format != 'xhtml') return true;
-
-        dbg($data);
-
         $command = $data['command'];
         $params  = $data['params'];
         $graph   = $data['graph'];
