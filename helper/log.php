@@ -102,7 +102,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
                     // referer
                     $referer = trim($parts[10], '"');
                     // skip non valid and local referers
-                    if(substr($referer, 0, 4) == 'http' && (strstr($referer, DOKU_URL) !== 0)){
+                    if(substr($referer, 0, 4) == 'http' && (strpos($referer, DOKU_URL) !== 0)){
                         list($referer) = explode('?', $referer);
                         $this->logdata[$month]['referer']['count']++;
                         $this->logdata[$month]['referer_url'][$referer]++;
