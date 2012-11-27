@@ -6,6 +6,9 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
     private $logfile = '';
     private $browscap = null;
 
+    private $max_lines_per_run = 500;
+    public $top_limit = 30;
+
     /**
      * Constructor
      *
@@ -23,7 +26,6 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         }
     }
 
-
     /**
      * Parses the next chunk of logfile into our memory structure
      */
@@ -35,7 +37,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         $pos = 0;
         if(isset($this->logdata['_logpos'])) $pos = $this->logdata['_logpos'];
         if($pos > $size) $pos = 0;
-        if($pos && $size - $pos < 30000) return 0; // we want at least 30k of log data
+        if($pos && $size - $pos < $this->max_lines_per_run * 200) return 0; // we want to have some minimal log data
 
         if(!$this->lock()) return 0;
 
@@ -44,11 +46,9 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         if(!$fh) return 0;
         fseek($fh, $pos, SEEK_SET);
 
-        $lines             = 0;
-        $max_lines_per_run = 500;
-
         // read lines
-        while(feof($fh) == 0 && $lines < $max_lines_per_run) {
+        $lines = 0;
+        while(feof($fh) == 0 && $lines < $this->max_lines_per_run) {
             $line = fgets($fh);
             $lines++;
             $pos += strlen($line);
@@ -98,11 +98,15 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
                     }
                 }
 
+                // log additional detailed data
                 if($thistype == 'page') {
+                    // url
+                    $this->logdata[$month]['page_url'][$url]++;
+
                     // referer
                     $referer = trim($parts[10], '"');
                     // skip non valid and local referers
-                    if(substr($referer, 0, 4) == 'http' && (strpos($referer, DOKU_URL) !== 0)){
+                    if(substr($referer, 0, 4) == 'http' && (strpos($referer, DOKU_URL) !== 0)) {
                         list($referer) = explode('?', $referer);
                         $this->logdata[$month]['referer']['count']++;
                         $this->logdata[$month]['referer_url'][$referer]++;
@@ -115,7 +119,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
 
                     // user agent
                     $ua = trim(join(' ', array_slice($parts, 11)), '" ');
-                    if($ua){
+                    if($ua) {
                         $ua = $this->ua($ua);
                         $this->logdata[$month]['useragent'][$ua]++;
                     }
@@ -135,8 +139,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
 
         // clean up the last month, freeing memory
         if($this->logdata['_lastmonth'] != $month) {
-            // FIXME shorten IPs, referers, entry pages, user agents
-
+            $this->clean_month($this->logdata['_lastmonth']);
             $this->logdata['_lastmonth'] = $month;
         }
 
@@ -144,6 +147,24 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         io_saveFile($this->logcache, serialize($this->logdata));
         $this->unlock();
         return $lines;
+    }
+
+    /**
+     * Clean up the backlog
+     *
+     * Shortens IPs, referers, entry pages, user agents etc. to preserve space and memory
+     *
+     * @param string $month where to clean up
+     */
+    private function clean_month($month) {
+        if(!$month) return;
+
+        foreach(array('ip', 'page_url', 'referer_url', 'entry', 'useragent') as $type) {
+            if(is_array($this->logdata[$month][$type])) {
+                arsort($this->logdata[$month][$type]);
+                $this->logdata[$month][$type] = array_slice($this->logdata[$month][$type], 0, $this->top_limit);
+            }
+        }
     }
 
     /**
@@ -159,6 +180,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         }
         $ua = $this->browscap->getBrowser($useragent);
         list($version) = explode('.', $ua->Version);
+        if(!$version) $version = ''; // no zero version
         return trim($ua->Browser.' '.$version);
     }
 
@@ -167,22 +189,22 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
      *
      * @author Tom N Harris <tnharris@whoopdedo.org>
      */
-    private  function lock() {
+    private function lock() {
         global $conf;
-        $run = 0;
+        $run  = 0;
         $lock = $conf['lockdir'].'/_statdisplay.lock';
-        while (!@mkdir($lock, $conf['dmode'])) {
+        while(!@mkdir($lock, $conf['dmode'])) {
             usleep(50);
-            if(is_dir($lock) && time()-@filemtime($lock) > 60*5){
+            if(is_dir($lock) && time() - @filemtime($lock) > 60 * 5) {
                 // looks like a stale lock - remove it
                 @rmdir($lock);
                 return false;
-            }elseif($run++ == 1000){
+            } elseif($run++ == 1000) {
                 // we waited 5 seconds for that lock
                 return false;
             }
         }
-        if ($conf['dperm'])
+        if($conf['dperm'])
             chmod($lock, $conf['dperm']);
         return true;
     }

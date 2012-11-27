@@ -120,7 +120,7 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
             $this->cell($this->pct($count, $max));
             $this->R->tablerow_close();
             $row++;
-            if($row > 30) break;
+            if($row > $this->log->top_limit) break;
         }
 
 
