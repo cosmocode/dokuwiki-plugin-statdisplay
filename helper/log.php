@@ -23,6 +23,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         }
     }
 
+
     /**
      * Parses the next chunk of logfile into our memory structure
      */
@@ -35,6 +36,8 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         if(isset($this->logdata['_logpos'])) $pos = $this->logdata['_logpos'];
         if($pos > $size) $pos = 0;
         if($pos && $size - $pos < 30000) return 0; // we want at least 30k of log data
+
+        if(!$this->lock()) return 0;
 
         // open handle
         $fh = fopen($this->logfile, 'r');
@@ -139,6 +142,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
 
         // save the data
         io_saveFile($this->logcache, serialize($this->logdata));
+        $this->unlock();
         return $lines;
     }
 
@@ -156,6 +160,42 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         $ua = $this->browscap->getBrowser($useragent);
         list($version) = explode('.', $ua->Version);
         return trim($ua->Browser.' '.$version);
+    }
+
+    /**
+     * Lock the the analysis process
+     *
+     * @author Tom N Harris <tnharris@whoopdedo.org>
+     */
+    private  function lock() {
+        global $conf;
+        $run = 0;
+        $lock = $conf['lockdir'].'/_statdisplay.lock';
+        while (!@mkdir($lock, $conf['dmode'])) {
+            usleep(50);
+            if(is_dir($lock) && time()-@filemtime($lock) > 60*5){
+                // looks like a stale lock - remove it
+                @rmdir($lock);
+                return false;
+            }elseif($run++ == 1000){
+                // we waited 5 seconds for that lock
+                return false;
+            }
+        }
+        if ($conf['dperm'])
+            chmod($lock, $conf['dperm']);
+        return true;
+    }
+
+    /**
+     * Unlock the the analysis process
+     *
+     * @author Tom N Harris <tnharris@whoopdedo.org>
+     */
+    private function unlock() {
+        global $conf;
+        @rmdir($conf['lockdir'].'/_statdisplay.lock');
+        return true;
     }
 
     /**
