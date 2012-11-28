@@ -113,7 +113,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
         if($year < 2000 || $year > 2050) return '';
         $month = array_search($month, $months);
         if(!$month) return '';
-        return sprintf("%d-%0d", $year, $month);
+        return sprintf("%d-%02d", $year, $month);
     }
 
 }

@@ -5,7 +5,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
     private $logcache = '';
     private $logfile = '';
 
-    private $max_lines_per_run = 5000;
+    private $max_lines_per_run = 10000;
     public $top_limit = 30;
 
     /**
@@ -187,9 +187,10 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
      */
     private function ua($useragent) {
         $ua = new Browser($useragent);
-        list($version) = explode('.', $ua->getVersion);
+        list($version) = explode('.', $ua->getVersion());
         if(!$version) $version = ''; // no zero version
-        return trim($ua->getBrowser.' '.$version);
+        if($version == 'unknown') $version = '';
+        return trim($ua->getBrowser().' '.$version);
     }
 
     /**
