@@ -187,12 +187,13 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
         $data = $this->log->logdata[$date]['media']['day'];
         $data = array_slice($data, -7, 7, true); // limit to seven days
 
+        // add from previous month if needed
         $num  = count($data);
         if($num < 7) {
             $data += array_slice($this->log->logdata[$this->prevmonth($date)]['media']['day'], -1*(7-$num), 7-$num, true);
         }
 
-
+        // count up the traffic
         $alltraffic  = 0;
         $usertraffic = array();
         foreach($data as $day => $info){
@@ -202,6 +203,7 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
             }
         }
 
+        // get work day average
         if(count($usertraffic)){
             $avg = $alltraffic/count($usertraffic);
             $avg = $avg / 5; //work day average
@@ -209,17 +211,14 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
 
         // prepare the graph datasets
         $DataSet = new pData();
-        foreach($usertraffic as $label => $traffic) {
-            $DataSet->addPoints(array($traffic), "user_$label");
-            $DataSet->setSeriesName($label, "user_$label");
-        }
+        $DataSet->addPoints(array_values($usertraffic), "traffic");
 
         // setup axis
-        $DataSet->AddPoints(array(''), 'times');
+        $DataSet->AddPoints(array_keys($usertraffic), 'names');
         $DataSet->AddAllSeries();
-        $DataSet->SetAbscissaLabelSeries('times');
-        $DataSet->removeSeries('times');
-        $DataSet->removeSeriesName('times');
+        $DataSet->SetAbscissaLabelSeries('names');
+        $DataSet->removeSeries('names');
+        $DataSet->removeSeriesName('names');
 
 
         // create the bar graph
@@ -227,14 +226,14 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
         $Chart  = new pChart(600, 300, $Canvas);
 
         $Chart->setFontProperties(dirname(__FILE__).'/../pchart/Fonts/DroidSans.ttf', 8);
-        $Chart->setGraphArea(50, 40, 500, 200);
+        $Chart->setGraphArea(50, 40, 600, 200);
         $Chart->drawScale(
             $DataSet, new ScaleStyle(SCALE_NORMAL, new Color(127)),
             45, 1, true
         );
 
         $Chart->drawBarGraph($DataSet->GetData(), $DataSet->GetDataDescription());
-        $Chart->drawLegend(500, 40, $DataSet->GetDataDescription(), new Color(250));
+        //$Chart->drawLegend(500, 40, $DataSet->GetDataDescription(), new Color(250));
 
         $Chart->drawTreshold($avg, new Color(128,0,0));
 
