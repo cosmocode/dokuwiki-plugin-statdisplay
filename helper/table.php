@@ -68,7 +68,7 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         if(!$date) $date = date('Y-m');
         $this->listtable($this->log->logdata[$date]['referer_url'],
                          $this->log->logdata[$date]['referer']['count'],
-                         'Top Referrers in '.$date);
+                         sprintf($this->getLang('t_topReferrer'), $date));
     }
 
     /**
@@ -80,7 +80,7 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         if(!$date) $date = date('Y-m');
         $this->listtable($this->log->logdata[$date]['entry'],
                          $this->log->logdata[$date]['page']['all']['count'],
-                         'Top Entry Pages in '.$date);
+                         sprintf($this->getLang('t_topEntry'), $date));
     }
 
     /**
@@ -92,7 +92,7 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         if(!$date) $date = date('Y-m');
         $this->listtable($this->log->logdata[$date]['useragent'],
                          $this->log->logdata[$date]['page']['all']['count'],
-                         'Top User Agents in '.$date);
+                         sprintf($this->getLang('t_topUserAgents') , $date));
     }
 
     /**
@@ -104,7 +104,7 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         if(!$date) $date = date('Y-m');
         $this->listtable($this->log->logdata[$date]['page_url'],
                          $this->log->logdata[$date]['page']['all']['count'],
-                         'Top Pages in '.$date);
+                         sprintf($this->getLang('t_topPages'), $date));
     }
 
     /**
@@ -172,72 +172,72 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         $this->R->table_open();
 
         $this->R->tablerow_open();
-        $this->head('Monthly Statistics for '.$date, 3);
+        $this->head(sprintf($this->getLang('t_statisticMonth'), $date), 3);
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
-        $this->hcell('Total hits');
+        $this->hcell($this->getLang('totalHits'));
         $this->cell($data['page']['all']['count'] + $data['media']['all']['count'], 2);
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
-        $this->hcell('Total files');
+        $this->hcell($this->getLang('totalFiles'));
         $this->cell($data['media']['all']['count'], 2);
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
-        $this->hcell('Total pages');
+        $this->hcell($this->getLang('totalPages'));
         $this->cell($data['page']['all']['count'], 2);
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
-        $this->hcell('Total visitors');
+        $this->hcell($this->getLang('totalVisitors'));
         $this->cell($data['page']['all']['visitor'], 2);
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
-        $this->hcell('Total bytes');
+        $this->hcell($this->getLang('totalBytes'));
         $this->cell(filesize_h($data['page']['all']['bytes']), 2);
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
         $this->head('');
-        $this->head('avg');
-        $this->head('max');
+        $this->head($this->getLang('avg'));
+        $this->head($this->getLang('max'));
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
-        $this->hcell('Hits per hour');
+        $this->hcell($this->getLang('hitsHour'));
         $this->cell($this->log->avg($data['hits']['hour'], 'count'));
         $this->cell($this->log->max($data['hits']['hour'], 'count'));
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
-        $this->hcell('Hits per day');
+        $this->hcell($this->getLang('hitsDay'));
         $this->cell($this->log->avg($data['hits']['day'], 'count'));
         $this->cell($this->log->max($data['hits']['day'], 'count'));
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
-        $this->hcell('Files per day');
+        $this->hcell($this->getLang('filesDay'));
         $this->cell($this->log->avg($data['media']['day'], 'count'));
         $this->cell($this->log->max($data['media']['day'], 'count'));
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
-        $this->hcell('Pages per day');
+        $this->hcell($this->getLang('pagesDay'));
         $this->cell($this->log->avg($data['page']['day'], 'count'));
         $this->cell($this->log->max($data['page']['day'], 'count'));
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
-        $this->hcell('Bytes per day');
+        $this->hcell($this->getLang('bytesDay'));
         $this->cell(filesize_h($this->log->avg($data['hits']['day'], 'bytes')));
         $this->cell(filesize_h($this->log->max($data['hits']['day'], 'bytes')));
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
-        $this->head('Hits by Status Code',3);
+        $this->head($this->getLang('hitsStatusCode'),3);
         $this->R->tablerow_close();
 
         foreach((array) $this->log->logdata[$date]['status']['all'] as $code => $count ){
@@ -257,25 +257,25 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         $this->R->table_open();
 
         $this->R->tablerow_open();
-        $this->head('Summary by Month', 10);
+        $this->head($this->getLang('summaryMonth'), 10);
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
-        $this->head('Month', 1, 2);
-        $this->head('Daily Average', 4);
-        $this->head('Monthly Totals', 5);
+        $this->head($this->getLang('month'), 1, 2);
+        $this->head($this->getLang('dailyavg'), 4);
+        $this->head($this->getLang('totals'), 5);
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
-        $this->head('Hits');
-        $this->head('Files');
-        $this->head('Pages');
-        $this->head('Visitors');
-        $this->head('Bytes');
-        $this->head('Visitors');
-        $this->head('Pages');
-        $this->head('Files');
-        $this->head('Hits');
+        $this->head($this->getLang('hits'));
+        $this->head($this->getLang('files'));
+        $this->head($this->getLang('pages'));
+        $this->head($this->getLang('visitors'));
+        $this->head($this->getLang('bytes'));
+        $this->head($this->getLang('visitors'));
+        $this->head($this->getLang('pages'));
+        $this->head($this->getLang('files'));
+        $this->head($this->getLang('hits'));
         $this->R->tablerow_close();
 
         foreach($this->log->logdata as $month => $data) {
@@ -325,8 +325,8 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
 
         $this->R->tablerow_open();
         $this->head('#');
-        $this->head('Name');
-        $this->head('Hits', 2);
+        $this->head($this->getLang('name'));
+        $this->head($this->getLang('hits'), 2);
         $this->R->tablerow_close();
 
 

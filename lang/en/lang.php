@@ -1,4 +1,9 @@
 <?php
+$lang['t_statisticMonth'] = 'Monthly Statistics for %s';
+$lang['t_topPages'] = 'Top Pages in %s';
+$lang['t_topUserAgents'] = 'Top User Agents in %s';
+$lang['t_topEntry'] = 'Top Entry Pages in %s';
+$lang['t_topReferrer'] = 'Top Referrers in %s';
 
 $lang['t_summary']     = 'Access Summary by Month';
 $lang['t_month']       = 'Monthly Access Statistics for %s';
@@ -17,7 +22,26 @@ $lang['hits']     = 'Hits';
 $lang['media']    = 'Media';
 $lang['pages']    = 'Pages';
 $lang['visitors'] = 'Visitors';
+$lang['bytes'] = 'Bytes';
 $lang['traffic']  = 'Traffic';
+$lang['avg'] = 'avg';
+$lang['max'] = 'max';
+$lang['files'] = 'Files';
+$lang['name'] = 'Name';
+
+$lang['totalHits'] = 'Total hits';
+$lang['totalFiles'] = 'Total files';
+$lang['totalPages'] = 'Total pages';
+$lang['totalVisitors'] = 'Total visitors';
+$lang['totalBytes'] = 'Total bytes';
+
+$lang['hitsHour'] = 'Hits per hour';
+$lang['hitsDay'] = 'Hits per day';
+$lang['filesDay'] = 'Files per day';
+$lang['pagesDay'] = 'Pages per day';
+$lang['bytesDay'] = 'Bytes per day';
+$lang['hitsStatusCode'] = 'Hits by Status Code';
+$lang['summaryMonth'] = 'Summary by Month';
 
 $lang['status_100'] = 'Continue';
 $lang['status_101'] = 'Switching Protocols';
