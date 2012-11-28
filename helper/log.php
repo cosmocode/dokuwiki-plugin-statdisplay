@@ -4,9 +4,8 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
     public $logdata = array();
     private $logcache = '';
     private $logfile = '';
-    private $browscap = null;
 
-    private $max_lines_per_run = 500;
+    private $max_lines_per_run = 5000;
     public $top_limit = 30;
 
     /**
@@ -51,6 +50,8 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         if($pos && $size - $pos < $this->max_lines_per_run * 150) return 0; // we want to have some minimal log data
 
         if(!$this->lock()) return 0;
+
+        require_once(dirname(__FILE__).'/../Browser.php');
 
         // open handle
         $fh = fopen($this->logfile, 'r');
@@ -185,14 +186,10 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
      * @return string
      */
     private function ua($useragent) {
-        if(is_null($this->browscap)) {
-            require dirname(__FILE__).'/../StatisticsBrowscap.class.php';
-            $this->browscap = new StatisticsBrowscap();
-        }
-        $ua = $this->browscap->getBrowser($useragent);
-        list($version) = explode('.', $ua->Version);
+        $ua = new Browser($useragent);
+        list($version) = explode('.', $ua->getVersion);
         if(!$version) $version = ''; // no zero version
-        return trim($ua->Browser.' '.$version);
+        return trim($ua->getBrowser.' '.$version);
     }
 
     /**
