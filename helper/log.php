@@ -76,6 +76,12 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
             list($url) = explode('?', $parts[6]); // strip GET vars
             $status = $parts[8];
             $size   = $parts[9];
+            $user   = trim($parts[2],'"-');
+
+            // FIXME fake user for debug
+            $fixme = array('', '', 'joey', 'jane', 'lara', 'john-schmoe');
+            $user = $fixme[array_rand($fixme)];
+
 
             if($status == 200) {
                 $thistype = (substr($url, 0, 8) == '/_media/') ? 'media' : 'page';
@@ -102,6 +108,10 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
                     $this->logdata[$month][$type]['all']['bytes'] += $size;
                     $this->logdata[$month][$type]['day'][$day]['bytes'] += $size;
                     $this->logdata[$month][$type]['hour'][$hour]['bytes'] += $size;
+
+                    if($user){
+                        $this->logdata[$month][$type]['day'][$day]['usertraffic'][$user] += $size;
+                    }
 
                     if($newvisitor) {
                         $this->logdata[$month][$type]['all']['visitor']++;

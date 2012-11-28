@@ -12,7 +12,7 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
      * @param  string $to
      * @return void
      */
-    public function sendgraph($command, $from = '', $to='') {
+    public function sendgraph($command, $from = '', $to = '') {
         require dirname(__FILE__).'/../pchart/pData.php';
         require dirname(__FILE__).'/../pchart/pChart.php';
         require dirname(__FILE__).'/../pchart/GDCanvas.php';
@@ -37,6 +37,9 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
             case 'traffic by hour':
                 $this->trafficby('hour', $from);
                 break;
+            case 'traffic by user':
+                $this->userdownloads($from);
+                break;
             default:
                 $this->nograph('No such graph: '.$command);
                 break;
@@ -50,7 +53,7 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
      * @param string $to
      * @return void
      */
-    private function summary($from='', $to='') {
+    private function summary($from = '', $to = '') {
         $times    = array();
         $hits     = array();
         $pages    = array();
@@ -157,6 +160,89 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
             ),
             array($hits, $pages, $media)
         );
+    }
+
+    /**
+     * return the month before the given month
+     *
+     * @param $date
+     * @return string
+     */
+    private function prevmonth($date){
+        list($year, $month) = explode('-',$date);
+        $month = $month -1;
+        if($month < 1){
+            $year = $year -1;
+            $month = 12;
+        }
+        return sprintf("%d-%02d",$year, $month);
+    }
+
+    /**
+     * @param $date month to display
+     */
+    private function userdownloads($date) {
+        if(!$date) $date = date('Y-m');
+
+        $data = $this->log->logdata[$date]['media']['day'];
+        $data = array_slice($data, -7, 7, true); // limit to seven days
+
+        $num  = count($data);
+        if($num < 7) {
+            $data += array_slice($this->log->logdata[$this->prevmonth($date)]['media']['day'], -1*(7-$num), 7-$num, true);
+        }
+
+
+        $alltraffic  = 0;
+        $usertraffic = array();
+        foreach($data as $day => $info){
+            foreach($info['usertraffic'] as $user => $traffic){
+                $usertraffic[$user] += $traffic/1024;
+                $alltraffic += $traffic/1024;
+            }
+        }
+
+        if(count($usertraffic)){
+            $avg = $alltraffic/count($usertraffic);
+            $avg = $avg / 5; //work day average
+        }
+
+        // prepare the graph datasets
+        $DataSet = new pData();
+        foreach($usertraffic as $label => $traffic) {
+            $DataSet->addPoints(array($traffic), "user_$label");
+            $DataSet->setSeriesName($label, "user_$label");
+        }
+
+        // setup axis
+        $DataSet->AddPoints(array(''), 'times');
+        $DataSet->AddAllSeries();
+        $DataSet->SetAbscissaLabelSeries('times');
+        $DataSet->removeSeries('times');
+        $DataSet->removeSeriesName('times');
+
+
+        // create the bar graph
+        $Canvas = new GDCanvas(600, 300, false);
+        $Chart  = new pChart(600, 300, $Canvas);
+
+        $Chart->setFontProperties(dirname(__FILE__).'/../pchart/Fonts/DroidSans.ttf', 8);
+        $Chart->setGraphArea(50, 40, 500, 200);
+        $Chart->drawScale(
+            $DataSet, new ScaleStyle(SCALE_NORMAL, new Color(127)),
+            45, 1, true
+        );
+
+        $Chart->drawBarGraph($DataSet->GetData(), $DataSet->GetDataDescription());
+        $Chart->drawLegend(500, 40, $DataSet->GetDataDescription(), new Color(250));
+
+        $Chart->drawTreshold($avg, new Color(128,0,0));
+
+        $Chart->setFontProperties(dirname(__FILE__).'/../pchart/Fonts/DroidSans.ttf', 12);
+        $Chart->drawTitle(10, 10, '7 Day Traffic by User (kb)', new Color(0), 590, 30);
+
+        $Chart->Render(null);
+
     }
 
     /**
