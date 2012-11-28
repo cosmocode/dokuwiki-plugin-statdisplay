@@ -1,5 +1,13 @@
 <?php
+// must be run within Dokuwiki
+if(!defined('DOKU_INC')) die();
 
+/**
+ * statdisplay plugin graph helper component
+ *
+ * @author Andreas Gohr <gohr@cosmocode.de>
+ * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ */
 class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
     /** @var helper_plugin_statdisplay_log */
     private $log = null;
@@ -179,7 +187,7 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
     }
 
     /**
-     * @param $date month to display
+     * @param string $date month to display
      */
     private function userdownloads($date) {
         if(!$date) $date = date('Y-m');
@@ -207,6 +215,8 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
         if(count($usertraffic)){
             $avg = $alltraffic/count($usertraffic);
             $avg = $avg / 5; //work day average
+        }else{
+            $avg = 0;
         }
 
         // prepare the graph datasets

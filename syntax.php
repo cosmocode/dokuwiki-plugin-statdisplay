@@ -1,18 +1,13 @@
 <?php
-/**
- *
- * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author     J.-F. Lalande <jean-francois.lalande@ensi-bourges.fr>
- * @author     Maxime Fonda <maxime.fonda@ensi-bourges.fr>
- * @author     Thibault Coullet <thibault.coullet@ensi-bourges.fr>
- * @author     Andreas Gohr <gohr@cosmocode.de>
- */
 // must be run within Dokuwiki
 if(!defined('DOKU_INC')) die();
 
+
 /**
- * All DokuWiki plugins to extend the parser/rendering mechanism
- * need to inherit from this class
+ * statdisplay plugin syntax component
+ *
+ * @author Andreas Gohr <gohr@cosmocode.de>
+ * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
  */
 class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
 

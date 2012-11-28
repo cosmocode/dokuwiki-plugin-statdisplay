@@ -2,6 +2,12 @@
 // must be run within Dokuwiki
 if(!defined('DOKU_INC')) die();
 
+/**
+ * statdisplay plugin action component
+ *
+ * @author Andreas Gohr <gohr@cosmocode.de>
+ * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ */
 class action_plugin_statdisplay extends DokuWiki_Action_Plugin {
 
     function register($controller) {
@@ -9,6 +15,8 @@ class action_plugin_statdisplay extends DokuWiki_Action_Plugin {
     }
 
     /**
+     * Analyze the next chunk of data
+     *
      * @param Doku_Event $event
      * @param $param
      */

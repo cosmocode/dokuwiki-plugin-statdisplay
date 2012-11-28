@@ -1,4 +1,11 @@
 <?php
+/**
+ * statdisplay plugin graph dispatcher
+ *
+ * @author Andreas Gohr <gohr@cosmocode.de>
+ * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ */
+
 
 if(!defined('DOKU_INC')) define('DOKU_INC', dirname(__FILE__).'/../../../');
 define('DOKU_DISABLE_GZIP_OUTPUT', 1);

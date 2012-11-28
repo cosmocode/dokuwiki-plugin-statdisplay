@@ -1,5 +1,13 @@
 <?php
+// must be run within Dokuwiki
+if(!defined('DOKU_INC')) die();
 
+/**
+ * statdisplay plugin table helper component
+ *
+ * @author Andreas Gohr <gohr@cosmocode.de>
+ * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ */
 class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
     /** @var helper_plugin_statdisplay_log */
     private $log = null;

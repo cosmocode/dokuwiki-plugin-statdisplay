@@ -1,5 +1,13 @@
 <?php
+// must be run within Dokuwiki
+if(!defined('DOKU_INC')) die();
 
+/**
+ * statdisplay plugin log helper component
+ *
+ * @author Andreas Gohr <gohr@cosmocode.de>
+ * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ */
 class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
     public $logdata = array();
     private $logcache = '';
@@ -78,11 +86,6 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
             $size   = $parts[9];
             $user   = trim($parts[2],'"-');
 
-            // FIXME fake user for debug
-            $fixme = array('', '', 'joey', 'jane', 'lara', 'john-schmoe');
-            $user = $fixme[array_rand($fixme)];
-
-
             if($status == 200) {
                 $thistype = (substr($url, 0, 8) == '/_media/') ? 'media' : 'page';
                 if($thistype == 'page') {
@@ -160,7 +163,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         $this->logdata['_logpos'] = $pos;
 
         // clean up the last month, freeing memory
-        if($this->logdata['_lastmonth'] != $month) {
+        if(isset($month) && $this->logdata['_lastmonth'] != $month) {
             $this->clean_month($this->logdata['_lastmonth']);
             $this->logdata['_lastmonth'] = $month;
         }
