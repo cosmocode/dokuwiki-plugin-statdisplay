@@ -171,49 +171,17 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
     }
 
     /**
-     * return the month before the given month
-     *
-     * @param $date
-     * @return string
-     */
-    private function prevmonth($date){
-        list($year, $month) = explode('-',$date);
-        $month = $month -1;
-        if($month < 1){
-            $year = $year -1;
-            $month = 12;
-        }
-        return sprintf("%d-%02d",$year, $month);
-    }
-
-    /**
      * @param string $date month to display
      */
     private function userdownloads($date) {
-        if(!$date) $date = date('Y-m');
+        $usertraffic = $this->log->usertraffic($date);
 
-        $data = $this->log->logdata[$date]['media']['day'];
-        $data = array_slice($data, -7, 7, true); // limit to seven days
-
-        // add from previous month if needed
-        $num  = count($data);
-        if($num < 7) {
-            $data += array_slice($this->log->logdata[$this->prevmonth($date)]['media']['day'], -1*(7-$num), 7-$num, true);
-        }
-
-        // count up the traffic
-        $alltraffic  = 0;
-        $usertraffic = array();
-        foreach($data as $day => $info){
-            foreach($info['usertraffic'] as $user => $traffic){
-                $usertraffic[$user] += $traffic/1024/1024;
-                $alltraffic += $traffic/1024/1024;
-            }
-        }
+        $tomb = create_function('$in', 'return $in / 1024 /1024;');
+        $usertraffic = array_map($tomb, $usertraffic);
 
         // get work day average
         if(count($usertraffic)){
-            $avg = $alltraffic/count($usertraffic);
+            $avg = $this->log->avg($usertraffic);
             $avg = $avg / 5; //work day average
         }else{
             $avg = 0;
@@ -263,7 +231,7 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
         $Chart->drawTreshold($avg, new Color(128,0,0));
 
         $Chart->setFontProperties(dirname(__FILE__).'/../pchart/Fonts/DroidSans.ttf', 12);
-        $Chart->drawTitle(10, 10, $this->getLang('t_usertraffic'), new Color(0), 590, 30);
+        $Chart->drawTitle(10, 10, $this->getLang('t_usertraffic').' (MB)', new Color(0), 590, 30);
 
         $Chart->Render(null);
 

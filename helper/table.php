@@ -22,7 +22,7 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      * @param string         $to       end interval
      * @return void
      */
-    public function table($R, $command, $from = '', $to='') {
+    public function table($R, $command, $from = '', $to = '') {
         $this->R   = $R;
         $this->log = plugin_load('helper', 'statdisplay_log');
 
@@ -56,13 +56,16 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
             case 'progress bar':
                 $this->progress();
                 break;
+            case 'traffic by user':
+                $this->userdownloads($from);
+                break;
             default:
                 $R->cdata('No such table: '.$command);
 
         }
     }
 
-    private function progress(){
+    private function progress() {
         $pct = sprintf('%.2f', $this->log->progress());
         $this->R->doc .= '<div class="statdisplay-progress" title="'.$pct.'%"><span style="width: '.$pct.'%"></span></div>';
     }
@@ -72,11 +75,13 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      *
      * @param string $date
      */
-    private function referer($date=''){
+    private function referer($date = '') {
         if(!$date) $date = date('Y-m');
-        $this->listtable($this->log->logdata[$date]['referer_url'],
-                         $this->log->logdata[$date]['referer']['count'],
-                         sprintf($this->getLang('t_topReferrer'), $date));
+        $this->listtable(
+            $this->log->logdata[$date]['referer_url'],
+            $this->log->logdata[$date]['referer']['count'],
+            sprintf($this->getLang('t_topReferrer'), $date)
+        );
     }
 
     /**
@@ -84,11 +89,13 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      *
      * @param string $date
      */
-    private function entry($date=''){
+    private function entry($date = '') {
         if(!$date) $date = date('Y-m');
-        $this->listtable($this->log->logdata[$date]['entry'],
-                         $this->log->logdata[$date]['page']['all']['count'],
-                         sprintf($this->getLang('t_topEntry'), $date));
+        $this->listtable(
+            $this->log->logdata[$date]['entry'],
+            $this->log->logdata[$date]['page']['all']['count'],
+            sprintf($this->getLang('t_topEntry'), $date)
+        );
     }
 
     /**
@@ -96,11 +103,13 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      *
      * @param string $date
      */
-    private function ua($date=''){
+    private function ua($date = '') {
         if(!$date) $date = date('Y-m');
-        $this->listtable($this->log->logdata[$date]['useragent'],
-                         $this->log->logdata[$date]['page']['all']['count'],
-                         sprintf($this->getLang('t_topUserAgents') , $date));
+        $this->listtable(
+            $this->log->logdata[$date]['useragent'],
+            $this->log->logdata[$date]['page']['all']['count'],
+            sprintf($this->getLang('t_topUserAgents'), $date)
+        );
     }
 
     /**
@@ -108,11 +117,13 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      *
      * @param string $date
      */
-    private function url($date=''){
+    private function url($date = '') {
         if(!$date) $date = date('Y-m');
-        $this->listtable($this->log->logdata[$date]['page_url'],
-                         $this->log->logdata[$date]['page']['all']['count'],
-                         sprintf($this->getLang('t_topPages'), $date));
+        $this->listtable(
+            $this->log->logdata[$date]['page_url'],
+            $this->log->logdata[$date]['page']['all']['count'],
+            sprintf($this->getLang('t_topPages'), $date)
+        );
     }
 
     /**
@@ -121,7 +132,7 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      * @param string $by either 'day' or 'hour'
      * @param string $date
      */
-    private function monthby($by, $date = ''){
+    private function monthby($by, $date = '') {
         if(!$date) $date = date('Y-m');
         $data = $this->log->logdata[$date];
 
@@ -135,14 +146,14 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
 
         $this->R->tablerow_open();
         $this->head($this->getLang('day'));
-        $this->head($this->getLang('hits'),2);
-        $this->head($this->getLang('media'),2);
-        $this->head($this->getLang('pages'),2);
-        $this->head($this->getLang('visitors'),2);
-        $this->head($this->getLang('traffic'),2);
+        $this->head($this->getLang('hits'), 2);
+        $this->head($this->getLang('media'), 2);
+        $this->head($this->getLang('pages'), 2);
+        $this->head($this->getLang('visitors'), 2);
+        $this->head($this->getLang('traffic'), 2);
         $this->R->tablerow_close();
 
-        foreach(array_keys((array) $data['hits'][$by]) as $idx){
+        foreach(array_keys((array) $data['hits'][$by]) as $idx) {
             $this->R->tablerow_open();
             $this->hcell($idx);
 
@@ -163,7 +174,6 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
 
             $this->R->tablerow_close();
         }
-
 
         $this->R->table_close();
     }
@@ -245,10 +255,10 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
-        $this->head($this->getLang('hitsStatusCode'),3);
+        $this->head($this->getLang('hitsStatusCode'), 3);
         $this->R->tablerow_close();
 
-        foreach((array) $this->log->logdata[$date]['status']['all'] as $code => $count ){
+        foreach((array) $this->log->logdata[$date]['status']['all'] as $code => $count) {
             $this->R->tablerow_open();
             $this->hcell('Status '.$code.' - '.$this->getLang('status_'.$code));
             $this->cell($count, 2);
@@ -261,7 +271,7 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
     /**
      * print the whole summary table
      */
-    private function summary($from='', $to='') {
+    private function summary($from = '', $to = '') {
         $this->R->table_open();
 
         $this->R->tablerow_open();
@@ -313,13 +323,24 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
     }
 
     /**
+     * @param string $date month to display
+     */
+    private function userdownloads($date) {
+        $usertraffic = $this->log->usertraffic($date);
+
+        $this->listtable($usertraffic, $this->log->sum($usertraffic), $this->getLang('t_usertraffic'), true);
+    }
+
+    /**
      * Print a simple listing table
      *
-     * @param $data
-     * @param $max
-     * @param $title
+     * @param array  $data
+     * @param float  $max
+     * @param string $title
+     * @param bool   $istraffic
+     * @return void
      */
-    private function listtable(&$data, $max, $title){
+    private function listtable(&$data, $max, $title, $istraffic=false) {
         if(!$data) $data = array();
 
         arsort($data);
@@ -334,15 +355,24 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         $this->R->tablerow_open();
         $this->head('#');
         $this->head($this->getLang('name'));
-        $this->head($this->getLang('hits'), 2);
+        if($istraffic){
+            $this->head($this->getLang('traffic'), 2);
+        }else{
+            $this->head($this->getLang('hits'), 2);
+        }
         $this->R->tablerow_close();
 
+        foreach($data as $key => $count) {
+            if($istraffic){
+                $val = filesize_h($count);
+            }else{
+                $val = $count;
+            }
 
-        foreach($data as $key => $count){
             $this->R->tablerow_open();
             $this->cell($row);
             $this->hcell($key);
-            $this->cell($count);
+            $this->cell($val);
             $this->cell($this->pct($count, $max));
             $this->R->tablerow_close();
             $row++;
@@ -359,10 +389,10 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      * @param $max
      * @return string
      */
-    private function pct($val, $max){
+    private function pct($val, $max) {
         if(!$max) return '0.00%';
 
-        return sprintf("%.2f%%", $val*100/$max);
+        return sprintf("%.2f%%", $val * 100 / $max);
     }
 
     /**

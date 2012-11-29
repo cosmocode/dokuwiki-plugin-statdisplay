@@ -38,10 +38,10 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
      *
      * @return float
      */
-    public function progress(){
+    public function progress() {
         $pos = (int) $this->logdata['_logpos'];
         $max = @filesize($this->logfile);
-        return $pos*100/$max;
+        return $pos * 100 / $max;
     }
 
     /**
@@ -84,7 +84,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
             list($url) = explode('?', $parts[6]); // strip GET vars
             $status = $parts[8];
             $size   = $parts[9];
-            $user   = trim($parts[2],'"-');
+            $user   = trim($parts[2], '"-');
 
             if($status == 200) {
                 $thistype = (substr($url, 0, 8) == '/_media/') ? 'media' : 'page';
@@ -112,7 +112,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
                     $this->logdata[$month][$type]['day'][$day]['bytes'] += $size;
                     $this->logdata[$month][$type]['hour'][$hour]['bytes'] += $size;
 
-                    if($user){
+                    if($user) {
                         $this->logdata[$month][$type]['day'][$day]['usertraffic'][$user] += $size;
                     }
 
@@ -243,17 +243,72 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
     }
 
     /**
+     * Return the last 7 day's user traffic
+     *
+     * @param $date
+     * @return array
+     */
+    public function usertraffic($date) {
+        if(!$date) $date = date('Y-m');
+
+        $data = $this->logdata[$date]['media']['day'];
+        $data = array_slice($data, -7, 7, true); // limit to seven days
+
+        // add from previous month if needed
+        $num = count($data);
+        if($num < 7) {
+            $data += array_slice($this->logdata[$this->prevmonth($date)]['media']['day'], -1 * (7 - $num), 7 - $num, true);
+        }
+
+        // count up the traffic
+        $alltraffic  = 0;
+        $usertraffic = array();
+        foreach($data as $day => $info) {
+            foreach($info['usertraffic'] as $user => $traffic) {
+                $usertraffic[$user] += $traffic;
+                $alltraffic += $traffic;
+            }
+        }
+        return $usertraffic;
+    }
+
+    /**
+     * Gives the sum of a certain column from the input array
+     *
+     * @param $input
+     * @param $key
+     * @return int
+     */
+    public function sum($input, $key=null) {
+        $sum = 0;
+        foreach((array) $input as $item) {
+            if(is_null($key)){
+                $val = $item;
+            }else{
+                $val = $item[$key];
+            }
+            $sum += $val;
+        }
+
+        return $sum;
+    }
+
+    /**
      * Avarages a certain column from the input array
      *
      * @param $input
      * @param $key
      * @return int
      */
-    public function avg($input, $key) {
+    public function avg($input, $key=null) {
         $cnt = 0;
         $all = 0;
         foreach((array) $input as $item) {
-            $all += $item[$key];
+            if(is_null($key)){
+                $all += $item;
+            }else{
+                $all += $item[$key];
+            }
             $cnt++;
         }
 
@@ -268,13 +323,35 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
      * @param $key
      * @return int
      */
-    public function max($input, $key) {
+    public function max($input, $key=null) {
         $max = 0;
         foreach((array) $input as $item) {
-            if($item[$key] > $max) $max = $item[$key];
+            if(is_null($key)){
+                $val = $item;
+            }else{
+                $val = $item[$key];
+            }
+
+            if($val > $max) $max = $val;
         }
 
         return $max;
+    }
+
+    /**
+     * return the month before the given month
+     *
+     * @param $date
+     * @return string
+     */
+    private function prevmonth($date) {
+        list($year, $month) = explode('-', $date);
+        $month = $month - 1;
+        if($month < 1) {
+            $year  = $year - 1;
+            $month = 12;
+        }
+        return sprintf("%d-%02d", $year, $month);
     }
 
 }

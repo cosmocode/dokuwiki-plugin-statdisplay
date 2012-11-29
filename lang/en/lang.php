@@ -11,7 +11,7 @@ $lang['t_day']         = 'Daily Access Statistics for %s';
 $lang['t_hour']        = 'Hourly Access Statistics for %s';
 $lang['t_trafficday']  = 'Daily Traffic Statistics for %s';
 $lang['t_traffichour'] = 'Hourly Traffic Statistics for %s';
-$lang['t_usertraffic'] = '7 Day User Traffic (MB)';
+$lang['t_usertraffic'] = '7 Day User Traffic';
 
 $lang['month']    = 'Month';
 $lang['day']      = 'Day';
