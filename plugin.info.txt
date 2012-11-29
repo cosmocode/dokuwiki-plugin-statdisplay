@@ -1,7 +1,7 @@
 base    statdisplay
 author  Jean-Françcois Lalande
 email   jf@lalande.nom.fr
-date    2008-06-26
+date    2012-11-29
 name    DokuWiki statdisplay plugin
 desc    Displays log statistics about your DokuWiki
 url     http://sds.ensi-bourges.fr/howto/doku.php?id=wiki:statdisplay
