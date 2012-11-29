@@ -206,8 +206,8 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
         $usertraffic = array();
         foreach($data as $day => $info){
             foreach($info['usertraffic'] as $user => $traffic){
-                $usertraffic[$user] += $traffic/1024;
-                $alltraffic += $traffic/1024;
+                $usertraffic[$user] += $traffic/1024/1024;
+                $alltraffic += $traffic/1024/1024;
             }
         }
 
@@ -217,6 +217,21 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
             $avg = $avg / 5; //work day average
         }else{
             $avg = 0;
+        }
+        arsort($usertraffic); // highest first
+
+        // limit number of users shown
+        $maxusers = 10;
+        if(count($usertraffic) > $maxusers+1){
+            $others = array_slice($usertraffic, $maxusers);
+            $usertraffic = array_slice($usertraffic, 0 ,$maxusers);
+
+            $other = 0;
+            foreach($others as $user => $traffic){
+                $other += $traffic;
+            }
+
+            $usertraffic[sprintf($this->getLang('others'), count($others))] = $other;
         }
 
         // prepare the graph datasets
@@ -248,7 +263,7 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
         $Chart->drawTreshold($avg, new Color(128,0,0));
 
         $Chart->setFontProperties(dirname(__FILE__).'/../pchart/Fonts/DroidSans.ttf', 12);
-        $Chart->drawTitle(10, 10, '7 Day Traffic by User (kb)', new Color(0), 590, 30);
+        $Chart->drawTitle(10, 10, $this->getLang('t_usertraffic'), new Color(0), 590, 30);
 
         $Chart->Render(null);
 
