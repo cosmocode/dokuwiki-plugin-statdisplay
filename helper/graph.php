@@ -175,6 +175,7 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
      */
     private function userdownloads($date) {
         $usertraffic = $this->log->usertraffic($date);
+        if(!$usertraffic) $this->nograph($this->getLang('t_usertraffic').': no data');
 
         $tomb = create_function('$in', 'return $in / 1024 /1024;');
         $usertraffic = array_map($tomb, $usertraffic);
