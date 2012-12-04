@@ -102,7 +102,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
      * @return string
      */
     private function cleanDate($date){
-        $months = array('','jan','feb','mar','apr','may','jun','jul','aug','sep','nov','dec');
+        $months = array('','jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec');
         list($month, $year) = explode('_', strtolower($date));
         $year = (int) $year;
         if($year < 2000 || $year > 2050) return '';
