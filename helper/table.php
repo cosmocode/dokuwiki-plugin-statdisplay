@@ -296,7 +296,7 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         $this->head($this->getLang('hits'));
         $this->R->tablerow_close();
 
-        foreach($this->log->logdata as $month => $data) {
+        foreach((array) $this->log->logdata as $month => $data) {
             if($month{0} == '_') continue;
             if($from && $month < $from) continue;
             if($to && $month > $to) break;

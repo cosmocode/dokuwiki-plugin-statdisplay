@@ -252,19 +252,19 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         if(!$date) $date = date('Y-m');
 
         $data = $this->logdata[$date]['media']['day'];
-        $data = array_slice($data, -7, 7, true); // limit to seven days
+        $data = array_slice((array) $data, -7, 7, true); // limit to seven days
 
         // add from previous month if needed
         $num = count($data);
         if($num < 7) {
-            $data += array_slice($this->logdata[$this->prevmonth($date)]['media']['day'], -1 * (7 - $num), 7 - $num, true);
+            $data += array_slice((array) $this->logdata[$this->prevmonth($date)]['media']['day'], -1 * (7 - $num), 7 - $num, true);
         }
 
         // count up the traffic
         $alltraffic  = 0;
         $usertraffic = array();
         foreach($data as $day => $info) {
-            foreach($info['usertraffic'] as $user => $traffic) {
+            foreach((array) $info['usertraffic'] as $user => $traffic) {
                 $usertraffic[$user] += $traffic;
                 $alltraffic += $traffic;
             }
