@@ -59,7 +59,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
         }
 
         // remaining params are dates
-        list($from, $to) = $params;
+        list($from, $to) = array_values($params);
 
         $data = array(
             'command' => $command,
