@@ -13,7 +13,7 @@ require_once(DOKU_INC.'inc/init.php');
 
 $graph = plugin_load('helper', 'statdisplay_graph');
 $graph->sendgraph(
-    $INPUT->str('graph'),
-    $INPUT->str('f'),
-    $INPUT->str('to')
+    $_REQUEST['graph'],
+    $_REQUEST['f'],
+    $_REQUEST['to']
 );
