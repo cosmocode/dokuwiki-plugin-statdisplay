@@ -1,9 +1,6 @@
 <?php
 /**
- * Metadata for configuration manager plugin
- * Additions for the StatDisplay plugin
- *
- * @author    Maxime FONDA && Thibault COULLET
+ * Config Metadata for the StatDisplay plugin
  */
-
-$meta['accesslog']                       = array('string');
+$meta['accesslog'] = array('string');
+$meta['lines']     = array('numeric', '_min'=>1);
