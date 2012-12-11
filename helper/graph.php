@@ -301,5 +301,6 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
         $Chart->setFontProperties(dirname(__FILE__).'/../pchart/Fonts/DroidSans.ttf', 10);
         $Chart->drawTitle(0, 0, $title, new Color(128, 0, 0), 300, 40);
         $Chart->Render(null);
+        exit;
     }
 }
