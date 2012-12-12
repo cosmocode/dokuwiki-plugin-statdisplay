@@ -21,7 +21,8 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
      * Loads the cache
      */
     public function __construct() {
-        $this->logfile = fullpath(DOKU_INC.$this->getConf('accesslog'));
+        global $conf;
+        $this->logfile = fullpath($conf['metadir'].'/'.$this->getConf('accesslog'));
         // file not found? assume absolute path
         if(!file_exists($this->logfile)) $this->logfile = $this->getConf('accesslog');
 
