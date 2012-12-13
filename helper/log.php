@@ -27,7 +27,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         if(!file_exists($this->logfile)) $this->logfile = $this->getConf('accesslog');
 
         // load the cache file
-        $this->logcache = getCacheName($this->logfile, '.statdisplay');
+        $this->logcache = getCacheName($this->getConf('accesslog'), '.statdisplay');
         if(file_exists($this->logcache)) {
             $this->logdata = unserialize(io_readFile($this->logcache, false));
         }
@@ -41,6 +41,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
     public function progress() {
         $pos = (int) $this->logdata['_logpos'];
         $max = @filesize($this->logfile);
+
         return $pos * 100 / $max;
     }
 
@@ -77,6 +78,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
 
             $parts = explode(' ', $line);
             $date  = strtotime(trim($parts[3].' '.$parts[4], '[]'));
+            if(!$date) continue;
 
             $month = date('Y-m', $date);
             $day   = date('d', $date);
@@ -113,7 +115,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
                     $this->logdata[$month][$type]['hour'][$hour]['bytes'] += $size;
 
                     if($user) {
-                        $this->logdata[$month][$type]['day'][$day]['usertraffic'][$user] += $size;
+                        $this->logdata[$month]['usertraffic'][$day][$user] += $size;
                     }
 
                     if($newvisitor) {
@@ -251,20 +253,20 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
     public function usertraffic($date) {
         if(!$date) $date = date('Y-m');
 
-        $data = $this->logdata[$date]['media']['day'];
+        $data = $this->logdata[$date]['usertraffic'];
         $data = array_slice((array) $data, -7, 7, true); // limit to seven days
 
         // add from previous month if needed
         $num = count($data);
         if($num < 7) {
-            $data += array_slice((array) $this->logdata[$this->prevmonth($date)]['media']['day'], -1 * (7 - $num), 7 - $num, true);
+            $data += array_slice((array) $this->logdata[$this->prevmonth($date)]['usertraffic'], -1 * (7 - $num), 7 - $num, true);
         }
 
         // count up the traffic
         $alltraffic  = 0;
         $usertraffic = array();
         foreach($data as $day => $info) {
-            foreach((array) $info['usertraffic'] as $user => $traffic) {
+            foreach((array) $info as $user => $traffic) {
                 $usertraffic[$user] += $traffic;
                 $alltraffic += $traffic;
             }
@@ -298,7 +300,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
      *
      * @param $input
      * @param $key
-     * @return int
+     * @return float
      */
     public function avg($input, $key=null) {
         $cnt = 0;
@@ -313,7 +315,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         }
 
         if(!$cnt) return 0;
-        return round($all / $cnt);
+        return $all / $cnt;
     }
 
     /**

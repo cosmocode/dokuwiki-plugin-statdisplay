@@ -289,11 +289,12 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         $this->head($this->getLang('files'));
         $this->head($this->getLang('pages'));
         $this->head($this->getLang('visitors'));
-        $this->head($this->getLang('bytes'));
-        $this->head($this->getLang('visitors'));
-        $this->head($this->getLang('pages'));
-        $this->head($this->getLang('files'));
         $this->head($this->getLang('hits'));
+        $this->head($this->getLang('files'));
+        $this->head($this->getLang('pages'));
+        $this->head($this->getLang('visitors'));
+        $this->head($this->getLang('bytes'));
+
         $this->R->tablerow_close();
 
         foreach((array) $this->log->logdata as $month => $data) {
@@ -305,16 +306,16 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
 
             $this->cell($month, 1, false); // Month
             // ---- averages ----
-            $this->cell($this->log->avg($data['hits']['day'], 'count')); // Hits
-            $this->cell($this->log->avg($data['media']['day'], 'count')); // Files
-            $this->cell($this->log->avg($data['page']['day'], 'count')); // Pages
-            $this->cell($this->log->avg($data['hits']['day'], 'visitor')); // Visits
+            $this->cell(round($this->log->avg($data['hits']['day'], 'count'))); // Hits
+            $this->cell(round($this->log->avg($data['media']['day'], 'count'))); // Files
+            $this->cell(round($this->log->avg($data['page']['day'], 'count'))); // Pages
+            $this->cell(round($this->log->avg($data['hits']['day'], 'visitor'))); // Visits
             // ---- totals ----
-            $this->cell(filesize_h($data['hits']['all']['bytes'])); // kBytes
-            $this->cell($data['hits']['all']['visitor']); // Visitors
-            $this->cell($data['page']['all']['count']); // Pages
-            $this->cell($data['media']['all']['count']); // Files
             $this->cell($data['hits']['all']['count']); // Hits
+            $this->cell($data['media']['all']['count']); // Files
+            $this->cell($data['page']['all']['count']); // Pages
+            $this->cell($data['hits']['all']['visitor']); // Visitors
+            $this->cell(filesize_h($data['hits']['all']['bytes'])); // kBytes
 
             $this->R->tablerow_close();
         }
