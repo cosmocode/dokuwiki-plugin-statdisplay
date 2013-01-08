@@ -183,7 +183,7 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin {
         // get work day average
         if(count($usertraffic)){
             $avg = $this->log->avg($usertraffic);
-            $avg = $avg / 5; //work day average
+            // $avg = $avg / 7 *5; //work day average
         }else{
             $avg = 0;
         }
