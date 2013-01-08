@@ -88,6 +88,10 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
             $size   = $parts[9];
             $user   = trim($parts[2], '"-');
 
+            if(!empty($user)){
+                $user = $GLOBALS['auth']->cleanUser($user);
+            }
+
             if($status == 200) {
                 $thistype = (substr($url, 0, 8) == '/_media/') ? 'media' : 'page';
                 if($thistype == 'page') {
