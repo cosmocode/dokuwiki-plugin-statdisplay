@@ -56,7 +56,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         $pos = 0;
         if(isset($this->logdata['_logpos'])) $pos = $this->logdata['_logpos'];
         if($pos > $size) $pos = 0;
-        if($pos && $size - $pos < $this->getConf('lines') * 150) return 0; // we want to have some minimal log data
+        if($pos && ( ($size - $pos) > ($this->getConf('lines') * 150) )) return 0; // we want to have some minimal log data
 
         if(!$this->lock()) return 0;
 
