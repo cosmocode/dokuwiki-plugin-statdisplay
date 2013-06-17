@@ -41,6 +41,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
     public function progress() {
         $pos = (int) $this->logdata['_logpos'];
         $max = @filesize($this->logfile);
+        if(!$max) return 100.0;
 
         return $pos * 100 / $max;
     }
