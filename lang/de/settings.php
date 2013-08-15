@@ -1,6 +1,7 @@
 <?php
-/**
- * German language file
- */
 
-$lang['accesslog']                       = 'Logfile location';
+/**
+ * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ * 
+ */
+$lang['accesslog']             = 'Logfile location';
