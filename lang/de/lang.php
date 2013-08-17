@@ -4,6 +4,7 @@
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * 
  * @author Tim Weinhold <tim.weinhold@gmail.com>
+ * @author Lars Pötter <lists@ing-poetter.de>
  */
 $lang['t_statisticMonth']      = 'Monatsstatistik für %s';
 $lang['t_topPages']            = 'Meistbesuchte Seiten in %s';
@@ -50,6 +51,7 @@ $lang['status_101']            = 'Protokolle wechseln';
 $lang['status_200']            = 'OK';
 $lang['status_201']            = 'Erstellt';
 $lang['status_202']            = 'Angenommen';
+$lang['status_203']            = 'Nicht-Authorative Information';
 $lang['status_204']            = 'Kein Inhalt';
 $lang['status_205']            = 'Inhalt zurücksetzen';
 $lang['status_206']            = 'Unvollständiger Inhalt';
@@ -58,5 +60,32 @@ $lang['status_301']            = 'Dauerhaft umgeleitet';
 $lang['status_302']            = 'Umgeleitet';
 $lang['status_303']            = 'Andere einsehen';
 $lang['status_304']            = 'Nicht verändert';
+$lang['status_305']            = 'Benutze Proxy Server';
+$lang['status_306']            = 'Proxy wechseln';
 $lang['status_307']            = 'Temporär umgeleitet';
+$lang['status_400']            = 'Ungültige Anfrage';
+$lang['status_401']            = 'Authorisation benötigt';
+$lang['status_402']            = 'Bezahlung benötigt';
+$lang['status_403']            = 'Verboten';
+$lang['status_404']            = 'Nicht gefunden';
+$lang['status_405']            = 'Mothode nicht erlaubt';
+$lang['status_406']            = 'Kann nicht angenommen werden';
+$lang['status_407']            = 'Authentifikation am Proxy benötigt';
+$lang['status_408']            = 'zeitüberschreitung der Anfrage';
 $lang['status_409']            = 'Konflikt';
+$lang['status_410']            = 'Vorbei';
+$lang['status_411']            = 'Länge wird benötigt';
+$lang['status_412']            = 'Vorbedingung nicht gegeben';
+$lang['status_413']            = 'Angeforderte Einheit zu groß';
+$lang['status_414']            = 'Anfrage URI ist zu lang';
+$lang['status_415']            = 'nicht unterstütztes Median Format';
+$lang['status_416']            = 'Angeforderter Bereich nciht möglich';
+$lang['status_417']            = 'Erwartungen nciht erfüllt';
+$lang['status_449']            = 'Wiederholen mit';
+$lang['status_500']            = 'interner Server Fehler';
+$lang['status_501']            = 'Nicht implementiert';
+$lang['status_502']            = 'Ungültiges Gateway';
+$lang['status_503']            = 'Dienst nciht verfügbar';
+$lang['status_504']            = 'Zeitüberschreitung am Gateway';
+$lang['status_505']            = 'HTTP Protokol version wird nicht unterstützt';
+$lang['status_509']            = 'Bandbreiten Begrenzung erreicht';
