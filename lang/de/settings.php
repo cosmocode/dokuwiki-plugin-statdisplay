@@ -6,4 +6,4 @@
  * @author Lars Pötter <lists@ing-poetter.de>
  */
 $lang['accesslog']             = 'Logfile location';
-$lang['lines']                 = 'Anzahl der zu analysierenden Zeilen( Kleiner Zahler führen zu schnelleren ergenissen und geringerem Speicherbedarf aber erhöhter anzahl von hintergrund Tasks für aktuelle Daten)';
+$lang['lines']                 = 'Anzahl der zu analysierenden Zeilen (Kleiner Zähler führt zu schnelleren Ergebnissen und geringerem Speicherbedarf aber erhöhter Anzahl von Hintergrund Tasks für aktuelle Daten)';
