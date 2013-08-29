@@ -4,6 +4,7 @@
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * 
  * @author Tim Weinhold <tim.weinhold@gmail.com>
+ * @author Chris Jung <kontakt@chrisjung.de>
  */
 $lang['t_statisticMonth']      = 'Monatsstatistik für %s';
 $lang['t_topPages']            = 'Meistbesuchte Seiten in %s';
@@ -58,5 +59,28 @@ $lang['status_301']            = 'Dauerhaft umgeleitet';
 $lang['status_302']            = 'Umgeleitet';
 $lang['status_303']            = 'Andere einsehen';
 $lang['status_304']            = 'Nicht verändert';
+$lang['status_305']            = 'Proxy benutzen';
+$lang['status_306']            = 'Proxy wechseln';
 $lang['status_307']            = 'Temporär umgeleitet';
+$lang['status_400']            = 'Fehlerhafte Anfrage';
+$lang['status_401']            = 'Berechtigung notwendig';
+$lang['status_402']            = 'Bezahlung notwendig';
+$lang['status_403']            = 'Verboten';
+$lang['status_404']            = 'Nicht gefunden';
+$lang['status_405']            = 'Methode nicht erlaubt';
+$lang['status_406']            = 'Nicht akzeptierbar';
+$lang['status_407']            = 'Anmeldung am Proxy notwendig';
+$lang['status_408']            = 'Anfrage hat zu lange gebraucht';
 $lang['status_409']            = 'Konflikt';
+$lang['status_410']            = 'Verschwunden';
+$lang['status_411']            = 'Längenangabe notwendig';
+$lang['status_414']            = 'Anfrage-URI zu lang';
+$lang['status_415']            = 'Nicht unterstützter Medientyp';
+$lang['status_449']            = 'Neu versuchen mit';
+$lang['status_500']            = 'Interner Server-Fehler';
+$lang['status_501']            = 'Nicht implementiert';
+$lang['status_502']            = 'Fehler am Gateway';
+$lang['status_503']            = 'Dienst nicht verfügbar';
+$lang['status_504']            = 'Zeitüberschreitung am Gateway';
+$lang['status_505']            = 'HTTP Version nicht unterstützt';
+$lang['status_509']            = 'Verfügbare Bandbreite überschritten';
