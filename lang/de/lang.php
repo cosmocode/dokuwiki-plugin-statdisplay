@@ -4,6 +4,7 @@
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * 
  * @author Tim Weinhold <tim.weinhold@gmail.com>
+ * @author olsch <post@regiolabor.de>
  */
 $lang['t_statisticMonth']      = 'Monatsstatistik für %s';
 $lang['t_topPages']            = 'Meistbesuchte Seiten in %s';
@@ -58,5 +59,15 @@ $lang['status_301']            = 'Dauerhaft umgeleitet';
 $lang['status_302']            = 'Umgeleitet';
 $lang['status_303']            = 'Andere einsehen';
 $lang['status_304']            = 'Nicht verändert';
+$lang['status_305']            = 'Proxy benutzen';
+$lang['status_306']            = 'Proxy wechseln';
 $lang['status_307']            = 'Temporär umgeleitet';
+$lang['status_402']            = 'Zahlung wird vorausgesetzt';
+$lang['status_403']            = 'Zugriff verweigert';
+$lang['status_404']            = 'Nicht gefunden';
 $lang['status_409']            = 'Konflikt';
+$lang['status_414']            = 'Die angeforderte URI ist zu lang';
+$lang['status_415']            = 'Nicht unterstütztes Media Format';
+$lang['status_500']            = 'Interner Server Error';
+$lang['status_501']            = 'Nicht Implimentiert';
+$lang['status_503']            = 'Dienst nicht Verfügbar';
