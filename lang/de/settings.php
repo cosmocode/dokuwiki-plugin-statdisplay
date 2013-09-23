@@ -2,8 +2,8 @@
 
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * 
- * @author Lars Pötter <lists@ing-poetter.de>
+ *
+ * @author Chris Jung <kontakt@chrisjung.de>
  */
 $lang['accesslog']             = 'Logfile location';
-$lang['lines']                 = 'Anzahl der zu analysierenden Zeilen (Kleiner Zähler führt zu schnelleren Ergebnissen und geringerem Speicherbedarf aber erhöhter Anzahl von Hintergrund Tasks für aktuelle Daten)';
+$lang['lines']                 = 'Anzahl der zu analysierenden Zeilen. Kleinere Zahlen ermöglichen schnelleren Zugriff auf aktuelle Daten und verringern den Bedarf an Arbeitsspeicher, erhöhen aber die Anzahl der Hintergrund-Tasks';

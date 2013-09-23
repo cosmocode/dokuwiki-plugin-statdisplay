@@ -1,10 +1,10 @@
 <?php
-
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * 
+ *
  * @author Tim Weinhold <tim.weinhold@gmail.com>
  * @author Lars Pötter <lists@ing-poetter.de>
+ * @author Chris Jung <kontakt@chrisjung.de>
  */
 $lang['t_statisticMonth']      = 'Monatsstatistik für %s';
 $lang['t_topPages']            = 'Meistbesuchte Seiten in %s';
