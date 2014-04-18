@@ -19,6 +19,7 @@ $lang['t_traffichour']         = 'Часовая статистика трафи
 $lang['t_usertraffic']         = 'Загрузки пользователей за 7 дней';
 $lang['month']                 = 'Месяц';
 $lang['day']                   = 'День';
+$lang['hour']                  = 'час';
 $lang['dailyavg']              = 'Среднее за день';
 $lang['totals']                = 'Итог за месяц';
 $lang['all']                   = 'Все';

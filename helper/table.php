@@ -145,7 +145,7 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
-        $this->head($this->getLang('day'));
+        $this->head($this->getLang($by));
         $this->head($this->getLang('hits'), 2);
         $this->head($this->getLang('media'), 2);
         $this->head($this->getLang('pages'), 2);
