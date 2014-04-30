@@ -15,6 +15,7 @@ $lang['t_usertraffic'] = '7 Day User Traffic';
 
 $lang['month']    = 'Month';
 $lang['day']      = 'Day';
+$lang['hour']     = 'Hour';
 $lang['dailyavg'] = 'Daily Average';
 $lang['totals']   = 'Monthly Totals';
 

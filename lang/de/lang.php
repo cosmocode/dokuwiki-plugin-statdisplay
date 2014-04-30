@@ -20,6 +20,7 @@ $lang['t_traffichour']         = 'Statistik des stündlichen Datenverkehrs für 
 $lang['t_usertraffic']         = '7 Tage Usertraffic';
 $lang['month']                 = 'Monat';
 $lang['day']                   = 'Tag';
+$lang['hour']                  = 'Stunde';
 $lang['dailyavg']              = 'Täglicher Durchschnitt';
 $lang['totals']                = 'Monatliche Gesamtwerte';
 $lang['all']                   = 'Alle';

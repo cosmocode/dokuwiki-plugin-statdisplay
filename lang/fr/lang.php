@@ -19,6 +19,7 @@ $lang['t_traffichour']         = 'Trafic horaire pour %s';
 $lang['t_usertraffic']         = 'Trafic utilisateur sur 7 jours';
 $lang['month']                 = 'Mois';
 $lang['day']                   = 'Jour';
+$lang['hour']                  = 'Heure';
 $lang['dailyavg']              = 'Moyenne quotidienne';
 $lang['totals']                = 'Totaux mensuels';
 $lang['all']                   = 'Tout';
