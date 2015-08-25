@@ -19,6 +19,7 @@ $lang['t_traffichour']         = '%s の時間別転送量統計';
 $lang['t_usertraffic']         = '７日間のユーザー別転送量';
 $lang['month']                 = '月';
 $lang['day']                   = '日';
+$lang['hour']                  = '時間';
 $lang['dailyavg']              = '日次平均';
 $lang['totals']                = '月間合計';
 $lang['all']                   = 'All';
