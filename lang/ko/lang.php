@@ -19,6 +19,7 @@ $lang['t_traffichour']         = '%s에 대한 시간별 트래픽 통계';
 $lang['t_usertraffic']         = '7일 사용자 트래픽';
 $lang['month']                 = '월';
 $lang['day']                   = '일';
+$lang['hour']                  = '시간';
 $lang['dailyavg']              = '일간 평균';
 $lang['totals']                = '월간 합계';
 $lang['all']                   = '모두';
