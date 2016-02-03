@@ -42,7 +42,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
     /**
      * Handle the match
      */
-    function handle($match, $state, $pos, &$handler) {
+    function handle($match, $state, $pos, Doku_Handler $handler) {
         $command = trim(substr($match, 14 ,-2));
         list($command, $params) = explode('?', $command);
         $params = explode(' ',$params);
@@ -74,7 +74,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin {
     /**
      * Create output
      */
-    function render($format, &$renderer, $data) {
+    function render($format, Doku_Renderer $renderer, $data) {
         if($format != 'xhtml') return true;
         $command = $data['command'];
         $graph   = $data['graph'];

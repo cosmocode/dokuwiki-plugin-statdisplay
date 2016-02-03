@@ -10,7 +10,7 @@ if(!defined('DOKU_INC')) die();
  */
 class action_plugin_statdisplay extends DokuWiki_Action_Plugin {
 
-    function register($controller) {
+    function register(Doku_Event_Handler $controller) {
         $controller->register_hook('INDEXER_TASKS_RUN','AFTER', $this, 'handle_run');
     }
 
