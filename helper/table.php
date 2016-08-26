@@ -406,7 +406,7 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
     private function head($data = '', $col = 1, $row = 1) {
         $this->R->tableheader_open($col, 'center', $row);
         $this->R->cdata($data);
-        $this->R->tablecell_close();
+        $this->R->tableheader_close();
     }
 
     /**
