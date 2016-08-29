@@ -4,4 +4,4 @@
  */
 
 $conf['accesslog']  = 'access.log';
-$conf['lines']      = 10000;
+$conf['lines']      = 500;
