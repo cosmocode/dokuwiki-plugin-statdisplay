@@ -2,7 +2,8 @@
 
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * 
+ *
+ * @author Jacob Palm <jacobpalmdk@icloud.com>
  * @author Søren Birk <soer9648@eucl.dk>
  */
 $lang['t_statisticMonth']      = 'Månedlig Statistik for %s';
@@ -19,6 +20,7 @@ $lang['t_traffichour']         = 'Timelig Trafikstatistikker for %s';
 $lang['t_usertraffic']         = '7-Dag Brugertrafik';
 $lang['month']                 = 'Måned';
 $lang['day']                   = 'Dag';
+$lang['hour']                  = 'Time';
 $lang['dailyavg']              = 'Daglig Gennemsnit';
 $lang['totals']                = 'Månedlig Totaler';
 $lang['all']                   = 'Alle';
