@@ -34,6 +34,15 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
     }
 
     /**
+     * drops the existing log cache
+     */
+    public function resetLogCache() {
+        @unlink($this->logcache);
+        clearstatcache($this->logcache);
+        $this->logdata = [];
+    }
+
+    /**
      * Return the progress of the log analysis
      *
      * @return float
@@ -48,8 +57,12 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
 
     /**
      * Parses the next chunk of logfile into our memory structure
+     *
+     * @return int the number of parsed lines
      */
-    public function parseLogData() {
+    public function parseLogData($maxlines) {
+        global $auth;
+
         $size = filesize($this->logfile);
         if(!$size) return 0;
 
@@ -57,7 +70,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         $pos = 0;
         if(isset($this->logdata['_logpos'])) $pos = $this->logdata['_logpos'];
         if($pos > $size) $pos = 0;
-        if($pos && ( ($size - $pos) < ($this->getConf('lines') * 150) )) return 0; // we want to have some minimal log data
+        if($pos && ( ($size - $pos) < ($maxlines * 150) )) return 0; // we want to have some minimal log data
 
         if(!$this->lock()) return 0;
 
@@ -65,12 +78,15 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
 
         // open handle
         $fh = fopen($this->logfile, 'r');
-        if(!$fh) return 0;
+        if(!$fh) {
+            $this->unlock();
+            return 0;
+        }
         fseek($fh, $pos, SEEK_SET);
 
         // read lines
         $lines = 0;
-        while(feof($fh) == 0 && $lines < $this->getConf('lines')) {
+        while(feof($fh) == 0 && $lines < $maxlines) {
             $line = fgets($fh);
             $lines++;
             $pos += strlen($line);

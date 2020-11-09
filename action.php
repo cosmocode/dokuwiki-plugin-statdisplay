@@ -25,7 +25,7 @@ class action_plugin_statdisplay extends DokuWiki_Action_Plugin {
 
         /** @var $log helper_plugin_statdisplay_log */
         $log = plugin_load('helper', 'statdisplay_log');
-        $lines = $log->parseLogData();
+        $lines = $log->parseLogData($this->getConf('lines'));
 
         // did we do any work?
         if($lines){
