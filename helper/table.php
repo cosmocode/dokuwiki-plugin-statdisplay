@@ -153,7 +153,9 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         $this->head($this->getLang('traffic'), 2);
         $this->R->tablerow_close();
 
-        foreach(array_keys((array) $data['hits'][$by]) as $idx) {
+        $keys = array_keys((array) $data['hits'][$by]);
+        sort($keys);
+        foreach($keys as $idx) {
             $this->R->tablerow_open();
             $this->hcell($idx);
 

@@ -30,6 +30,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
         $this->logcache = getCacheName($this->getConf('accesslog'), '.statdisplay');
         if(file_exists($this->logcache)) {
             $this->logdata = unserialize(io_readFile($this->logcache, false));
+            ksort($this->logdata);
         }
     }
 
