@@ -105,8 +105,8 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin {
             $size   = $parts[9];
             $user   = trim($parts[2], '"-');
 
-            if(!empty($user)){
-                $user = $GLOBALS['auth']->cleanUser($user);
+            if(!empty($user) && $auth){
+                $user = $auth->cleanUser($user);
             }
 
             if($status == 200) {
