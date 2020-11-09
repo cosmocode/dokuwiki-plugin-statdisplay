@@ -1,6 +1,6 @@
 <?php
 // must be run within Dokuwiki
-if(!defined('DOKU_INC')) die();
+if (!defined('DOKU_INC')) die();
 
 /**
  * statdisplay plugin table helper component
@@ -8,7 +8,8 @@ if(!defined('DOKU_INC')) die();
  * @author Andreas Gohr <gohr@cosmocode.de>
  * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
  */
-class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
+class helper_plugin_statdisplay_table extends DokuWiki_Plugin
+{
     /** @var helper_plugin_statdisplay_log */
     private $log = null;
 
@@ -16,17 +17,18 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
     private $R = null;
 
     /**
-     * @param Doku_Renderer  $R
-     * @param string         $command  type of statistic
-     * @param string         $from     restrict to this month
-     * @param string         $to       end interval
+     * @param Doku_Renderer $R
+     * @param string $command type of statistic
+     * @param string $from restrict to this month
+     * @param string $to end interval
      * @return void
      */
-    public function table($R, $command, $from = '', $to = '') {
-        $this->R   = $R;
+    public function table($R, $command, $from = '', $to = '')
+    {
+        $this->R = $R;
         $this->log = plugin_load('helper', 'statdisplay_log');
 
-        switch($command) {
+        switch ($command) {
             case 'all':
                 $this->summary($from, $to);
                 break;
@@ -60,14 +62,15 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
                 $this->userdownloads($from);
                 break;
             default:
-                $R->cdata('No such table: '.$command);
+                $R->cdata('No such table: ' . $command);
 
         }
     }
 
-    private function progress() {
+    private function progress()
+    {
         $pct = sprintf('%.2f', $this->log->progress());
-        $this->R->doc .= '<div class="statdisplay-progress" title="'.$pct.'%"><span style="width: '.$pct.'%"></span></div>';
+        $this->R->doc .= '<div class="statdisplay-progress" title="' . $pct . '%"><span style="width: ' . $pct . '%"></span></div>';
     }
 
     /**
@@ -75,8 +78,9 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      *
      * @param string $date
      */
-    private function referer($date = '') {
-        if(!$date) $date = date('Y-m');
+    private function referer($date = '')
+    {
+        if (!$date) $date = date('Y-m');
         $this->listtable(
             $this->log->logdata[$date]['referer_url'],
             $this->log->logdata[$date]['referer']['count'],
@@ -89,8 +93,9 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      *
      * @param string $date
      */
-    private function entry($date = '') {
-        if(!$date) $date = date('Y-m');
+    private function entry($date = '')
+    {
+        if (!$date) $date = date('Y-m');
         $this->listtable(
             $this->log->logdata[$date]['entry'],
             $this->log->logdata[$date]['page']['all']['count'],
@@ -103,8 +108,9 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      *
      * @param string $date
      */
-    private function ua($date = '') {
-        if(!$date) $date = date('Y-m');
+    private function ua($date = '')
+    {
+        if (!$date) $date = date('Y-m');
         $this->listtable(
             $this->log->logdata[$date]['useragent'],
             $this->log->logdata[$date]['page']['all']['count'],
@@ -117,8 +123,9 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      *
      * @param string $date
      */
-    private function url($date = '') {
-        if(!$date) $date = date('Y-m');
+    private function url($date = '')
+    {
+        if (!$date) $date = date('Y-m');
         $this->listtable(
             $this->log->logdata[$date]['page_url'],
             $this->log->logdata[$date]['page']['all']['count'],
@@ -132,11 +139,12 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      * @param string $by either 'day' or 'hour'
      * @param string $date
      */
-    private function monthby($by, $date = '') {
-        if(!$date) $date = date('Y-m');
+    private function monthby($by, $date = '')
+    {
+        if (!$date) $date = date('Y-m');
         $data = $this->log->logdata[$date];
 
-        $title = sprintf($this->getLang('t_'.$by), $date);
+        $title = sprintf($this->getLang('t_' . $by), $date);
 
         $this->R->table_open();
 
@@ -153,9 +161,9 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         $this->head($this->getLang('traffic'), 2);
         $this->R->tablerow_close();
 
-        $keys = array_keys((array) $data['hits'][$by]);
+        $keys = array_keys((array)$data['hits'][$by]);
         sort($keys);
-        foreach($keys as $idx) {
+        foreach ($keys as $idx) {
             $this->R->tablerow_open();
             $this->hcell($idx);
 
@@ -185,8 +193,9 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      *
      * @param $date
      */
-    private function month($date = '') {
-        if(!$date) $date = date('Y-m');
+    private function month($date = '')
+    {
+        if (!$date) $date = date('Y-m');
         $data = $this->log->logdata[$date];
 
         $this->R->table_open();
@@ -260,9 +269,9 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         $this->head($this->getLang('hitsStatusCode'), 3);
         $this->R->tablerow_close();
 
-        foreach((array) $this->log->logdata[$date]['status']['all'] as $code => $count) {
+        foreach ((array)$this->log->logdata[$date]['status']['all'] as $code => $count) {
             $this->R->tablerow_open();
-            $this->hcell('Status '.$code.' - '.$this->getLang('status_'.$code));
+            $this->hcell('Status ' . $code . ' - ' . $this->getLang('status_' . $code));
             $this->cell($count, 2);
             $this->R->tablerow_close();
         }
@@ -272,8 +281,12 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
 
     /**
      * print the whole summary table
+     *
+     * @param string $from unused
+     * @param string $to unsused
      */
-    private function summary($from = '', $to = '') {
+    private function summary($from = '', $to = '')
+    {
         $this->R->table_open();
 
         $this->R->tablerow_open();
@@ -299,10 +312,10 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
 
         $this->R->tablerow_close();
 
-        foreach((array) $this->log->logdata as $month => $data) {
-            if($month{0} == '_') continue;
-            if($from && $month < $from) continue;
-            if($to && $month > $to) break;
+        foreach ((array)$this->log->logdata as $month => $data) {
+            if ($month{0} == '_') continue;
+            if ($from && $month < $from) continue;
+            if ($to && $month > $to) break;
 
             $this->R->tablerow_open();
 
@@ -328,7 +341,8 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
     /**
      * @param string $date month to display
      */
-    private function userdownloads($date) {
+    private function userdownloads($date)
+    {
         $usertraffic = $this->log->usertraffic($date);
 
         $this->listtable($usertraffic, $this->log->sum($usertraffic), $this->getLang('t_usertraffic'), true);
@@ -337,14 +351,15 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
     /**
      * Print a simple listing table
      *
-     * @param array  $data
-     * @param float  $max
+     * @param array $data
+     * @param float $max
      * @param string $title
-     * @param bool   $istraffic
+     * @param bool $istraffic
      * @return void
      */
-    private function listtable(&$data, $max, $title, $istraffic=false) {
-        if(!$data) $data = array();
+    private function listtable(&$data, $max, $title, $istraffic = false)
+    {
+        if (!$data) $data = array();
 
         arsort($data);
         $row = 1;
@@ -358,17 +373,17 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
         $this->R->tablerow_open();
         $this->head('#');
         $this->head($this->getLang('name'));
-        if($istraffic){
+        if ($istraffic) {
             $this->head($this->getLang('traffic'), 2);
-        }else{
+        } else {
             $this->head($this->getLang('hits'), 2);
         }
         $this->R->tablerow_close();
 
-        foreach($data as $key => $count) {
-            if($istraffic){
+        foreach ($data as $key => $count) {
+            if ($istraffic) {
                 $val = filesize_h($count);
-            }else{
+            } else {
                 $val = $count;
             }
 
@@ -379,7 +394,7 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
             $this->cell($this->pct($count, $max));
             $this->R->tablerow_close();
             $row++;
-            if($row > $this->log->top_limit) break;
+            if ($row > $this->log->top_limit) break;
         }
 
         $this->R->table_close();
@@ -392,8 +407,9 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      * @param $max
      * @return string
      */
-    private function pct($val, $max) {
-        if(!$max) return '0.00%';
+    private function pct($val, $max)
+    {
+        if (!$max) return '0.00%';
 
         return sprintf("%.2f%%", $val * 100 / $max);
     }
@@ -402,10 +418,11 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      * print a table header cell
      *
      * @param string $data
-     * @param int    $col
-     * @param int    $row
+     * @param int $col
+     * @param int $row
      */
-    private function head($data = '', $col = 1, $row = 1) {
+    private function head($data = '', $col = 1, $row = 1)
+    {
         $this->R->tableheader_open($col, 'center', $row);
         $this->R->cdata($data);
         $this->R->tableheader_close();
@@ -415,9 +432,10 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      * print a non numeric data cell
      *
      * @param string $data
-     * @param int    $span
+     * @param int $span
      */
-    private function hcell($data = '', $span = 1) {
+    private function hcell($data = '', $span = 1)
+    {
         $this->cell($data, $span, false);
     }
 
@@ -425,12 +443,13 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin {
      * print a numeric data cell
      *
      * @param string $data
-     * @param int    $span
-     * @param bool   $number
+     * @param int $span
+     * @param bool $number
      */
-    private function cell($data = '', $span = 1, $number = true) {
-        if($number) {
-            if(!$data) $data = 0;
+    private function cell($data = '', $span = 1, $number = true)
+    {
+        if ($number) {
+            if (!$data) $data = 0;
             $align = 'right';
         } else {
             $align = null;

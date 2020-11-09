@@ -1,17 +1,17 @@
 <?php
-// must be run within Dokuwiki
-if(!defined('DOKU_INC')) die();
-
 /**
  * statdisplay plugin action component
  *
  * @author Andreas Gohr <gohr@cosmocode.de>
  * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
  */
-class action_plugin_statdisplay extends DokuWiki_Action_Plugin {
+class action_plugin_statdisplay extends DokuWiki_Action_Plugin
+{
 
-    function register(Doku_Event_Handler $controller) {
-        $controller->register_hook('INDEXER_TASKS_RUN','AFTER', $this, 'handle_run');
+    /** @inheritDoc */
+    function register(Doku_Event_Handler $controller)
+    {
+        $controller->register_hook('INDEXER_TASKS_RUN', 'AFTER', $this, 'handle_run');
     }
 
     /**
@@ -20,7 +20,8 @@ class action_plugin_statdisplay extends DokuWiki_Action_Plugin {
      * @param Doku_Event $event
      * @param $param
      */
-    function handle_run(&$event, $param) {
+    function handle_run(&$event, $param)
+    {
         echo "logfile analysis started.\n";
 
         /** @var $log helper_plugin_statdisplay_log */
@@ -28,7 +29,7 @@ class action_plugin_statdisplay extends DokuWiki_Action_Plugin {
         $lines = $log->parseLogData($this->getConf('lines'));
 
         // did we do any work?
-        if($lines){
+        if ($lines) {
             $event->preventDefault();
             $event->stopPropagation();
         }

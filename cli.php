@@ -3,6 +3,12 @@
 use dokuwiki\Extension\CLIPlugin;
 use splitbrain\phpcli\Options;
 
+/**
+ * statdisplay plugin cli component
+ *
+ * @author Andreas Gohr <gohr@cosmocode.de>
+ * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ */
 class cli_plugin_statdisplay extends CLIPlugin
 {
 
@@ -23,11 +29,11 @@ class cli_plugin_statdisplay extends CLIPlugin
      */
     protected function main(Options $options)
     {
-        switch($options->getCmd()) {
+        switch ($options->getCmd()) {
             case 'parse':
                 $this->parseData(
                     $this->options->getOpt('clear'),
-                    (int) $this->options->getOpt('lines', $this->getConf('lines'))
+                    (int)$this->options->getOpt('lines', $this->getConf('lines'))
                 );
                 break;
             default:
@@ -45,7 +51,7 @@ class cli_plugin_statdisplay extends CLIPlugin
         /** @var helper_plugin_statdisplay_log $helper */
         $helper = plugin_load('helper', 'statdisplay_log');
 
-        if($clear) {
+        if ($clear) {
             $helper->resetLogCache();
         }
 
