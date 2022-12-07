@@ -70,15 +70,15 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin
         $visitors = array();
 
         foreach ($this->log->logdata as $month => $data) {
-            if ($month{0} == '_') continue;
+            if ($month[0] == '_') continue;
             if ($from && $month < $from) continue;
             if ($to && $month > $to) break;
 
             $times[] = $month;
-            $pages[] = $data['page']['all']['count'];
-            $media[] = $data['media']['all']['count'];
-            $hits[] = $data['hits']['all']['count'];
-            $visitors[] = $data['hits']['all']['visitor'];
+            $pages[] = $data['page']['all']['count'] ?? 0;
+            $media[] = $data['media']['all']['count'] ?? 0;
+            $hits[] = $data['hits']['all']['count'] ?? 0;
+            $visitors[] = $data['hits']['all']['visitor'] ?? 0;
         }
 
         $title = $this->getLang('t_summary');

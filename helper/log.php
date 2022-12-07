@@ -51,11 +51,11 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
      */
     public function progress()
     {
-        $pos = (int)$this->logdata['_logpos'];
+        $pos = $this->logdata['_logpos'] ?? 0;
         $max = @filesize($this->logfile);
         if (!$max) return 100.0;
 
-        return $pos * 100 / $max;
+        return (int)$pos * 100 / $max;
     }
 
     /**
@@ -125,7 +125,11 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
 
                 // remember IPs
                 $newvisitor = !isset($this->logdata[$month]['ip'][$parts[0]]);
-                $this->logdata[$month]['ip'][$parts[0]]++;
+                if ($newvisitor) {
+                    $this->logdata[$month]['ip'][$parts[0]] = 1;
+                } else {
+                    $this->logdata[$month]['ip'][$parts[0]]++;
+                }
 
                 // log type dependent and summarized
                 foreach (array($thistype, 'hits') as $type) {
@@ -134,66 +138,129 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
                         $this->logdata[$month][$type]['hour'] = array_fill(0, 23, array());
                     }
 
-                    $this->logdata[$month][$type]['all']['count']++;
-                    $this->logdata[$month][$type]['day'][$day]['count']++;
-                    $this->logdata[$month][$type]['hour'][$hour]['count']++;
+                    $this->logdata[$month][$type]['all']['count'] =
+                        isset($this->logdata[$month][$type]['all']['count']) ?
+                            $this->logdata[$month][$type]['all']['count'] + 1 :
+                            1;
+                    $this->logdata[$month][$type]['day'][$day]['count'] =
+                        isset($this->logdata[$month][$type]['day'][$day]['count']) ?
+                            $this->logdata[$month][$type]['day'][$day]['count'] + 1 :
+                            1;
+                    $this->logdata[$month][$type]['hour'][$hour]['count'] =
+                        isset($this->logdata[$month][$type]['hour'][$hour]['count']) ?
+                            $this->logdata[$month][$type]['hour'][$hour]['count'] + 1 :
+                            1;
 
-                    $this->logdata[$month][$type]['all']['bytes'] += $size;
-                    $this->logdata[$month][$type]['day'][$day]['bytes'] += $size;
-                    $this->logdata[$month][$type]['hour'][$hour]['bytes'] += $size;
+                    $this->logdata[$month][$type]['all']['bytes'] =
+                        isset($this->logdata[$month][$type]['all']['bytes']) ?
+                            $this->logdata[$month][$type]['all']['bytes'] + $size :
+                            $size;
+                    $this->logdata[$month][$type]['day'][$day]['bytes'] =
+                        isset($this->logdata[$month][$type]['day'][$day]['bytes']) ?
+                            $this->logdata[$month][$type]['day'][$day]['bytes'] + $size
+                            : $size;
+                    $this->logdata[$month][$type]['hour'][$hour]['bytes'] =
+                        isset($this->logdata[$month][$type]['hour'][$hour]['bytes']) ?
+                            $this->logdata[$month][$type]['hour'][$hour]['bytes'] + $size :
+                            $size;
 
                     if ($user) {
-                        $this->logdata[$month]['usertraffic'][$day][$user] += $size;
+                        $this->logdata[$month]['usertraffic'][$day][$user] =
+                            isset($this->logdata[$month]['usertraffic'][$day][$user]) ?
+                                $this->logdata[$month]['usertraffic'][$day][$user] + $size :
+                                $size;
                     }
 
                     if ($newvisitor) {
-                        $this->logdata[$month][$type]['all']['visitor']++;
-                        $this->logdata[$month][$type]['day'][$day]['visitor']++;
-                        $this->logdata[$month][$type]['hour'][$hour]['visitor']++;
+                        $this->logdata[$month][$type]['all']['visitor'] =
+                            isset($this->logdata[$month][$type]['all']['visitor']) ?
+                                $this->logdata[$month][$type]['all']['visitor'] + 1 :
+                                1;
+                        $this->logdata[$month][$type]['day'][$day]['visitor'] =
+                            isset($this->logdata[$month][$type]['day'][$day]['visitor']) ?
+                                $this->logdata[$month][$type]['day'][$day]['visitor'] + 1 :
+                                1;
+                        $this->logdata[$month][$type]['hour'][$hour]['visitor'] =
+                            isset($this->logdata[$month][$type]['hour'][$hour]['visitor']) ?
+                                $this->logdata[$month][$type]['hour'][$hour]['visitor'] + 1 :
+                                1;
                     }
                 }
 
                 // log additional detailed data
                 if ($thistype == 'page') {
                     // url
-                    $this->logdata[$month]['page_url'][$url]++;
+                    $this->logdata[$month]['page_url'][$url] =
+                        isset($this->logdata[$month]['page_url'][$url]) ?
+                            $this->logdata[$month]['page_url'][$url] + 1 :
+                            1;
 
                     // referer
                     $referer = trim($parts[10], '"');
                     // skip non valid and local referers
                     if (substr($referer, 0, 4) == 'http' && (strpos($referer, DOKU_URL) !== 0)) {
                         list($referer) = explode('?', $referer);
-                        $this->logdata[$month]['referer']['count']++;
-                        $this->logdata[$month]['referer_url'][$referer]++;
+                        $this->logdata[$month]['referer']['count'] =
+                            isset($this->logdata[$month]['referer']['count']) ?
+                                $this->logdata[$month]['referer']['count'] + 1 :
+                                1;
+                        $this->logdata[$month]['referer_url'][$referer] =
+                            isset($this->logdata[$month]['referer_url'][$referer]) ?
+                                $this->logdata[$month]['referer_url'][$referer] + 1 :
+                                1;
                     }
 
                     // entry page
                     if ($newvisitor) {
-                        $this->logdata[$month]['entry'][$url]++;
+                        $this->logdata[$month]['entry'][$url] =
+                            isset($this->logdata[$month]['entry'][$url]) ?
+                                $this->logdata[$month]['entry'][$url] + 1 :
+                                1;
                     }
 
                     // user agent
                     $ua = trim(join(' ', array_slice($parts, 11)), '" ');
                     if ($ua) {
                         $ua = $this->ua($ua);
-                        $this->logdata[$month]['useragent'][$ua]++;
+                        $this->logdata[$month]['useragent'][$ua] =
+                            isset($this->logdata[$month]['useragent'][$ua]) ?
+                                $this->logdata[$month]['useragent'][$ua] + 1 :
+                                1;
                     }
                 }
             } else {
                 // count non-200 as a hit too
-                $this->logdata[$month]['hits']['all']['count']++;
-                $this->logdata[$month]['hits']['day'][$day]['count']++;
-                $this->logdata[$month]['hits']['hour'][$hour]['count']++;
+                $this->logdata[$month]['hits']['all']['count'] =
+                    isset($this->logdata[$month]['hits']['all']['count']) ?
+                        $this->logdata[$month]['hits']['all']['count'] + 1 :
+                        1;
+                $this->logdata[$month]['hits']['day'][$day]['count'] =
+                    isset($this->logdata[$month]['hits']['day'][$day]['count']) ?
+                        $this->logdata[$month]['hits']['day'][$day]['count'] + 1 :
+                        1;
+                $this->logdata[$month]['hits']['hour'][$hour]['count'] =
+                    isset($this->logdata[$month]['hits']['hour'][$hour]['count']) ?
+                        $this->logdata[$month]['hits']['hour'][$hour]['count'] + 1 :
+                        1;
             }
 
-            $this->logdata[$month]['status']['all'][$status]++;
-            $this->logdata[$month]['status']['day'][$day][$status]++;
-            $this->logdata[$month]['status']['hour'][$hour][$status]++;
+            $this->logdata[$month]['status']['all'][$status] =
+                isset($this->logdata[$month]['status']['all'][$status]) ?
+                    $this->logdata[$month]['status']['all'][$status] + 1 :
+                    1;
+            $this->logdata[$month]['status']['day'][$day][$status] =
+                isset($this->logdata[$month]['status']['day'][$day][$status]) ?
+                    $this->logdata[$month]['status']['day'][$day][$status] + 1 :
+                    1;
+            $this->logdata[$month]['status']['hour'][$hour][$status] =
+                isset($this->logdata[$month]['status']['hour'][$hour][$status]) ?
+                    $this->logdata[$month]['status']['hour'][$hour][$status] + 1 :
+                    1;
         }
         $this->logdata['_logpos'] = $pos;
 
         // clean up the last month, freeing memory
-        if (isset($month) && $this->logdata['_lastmonth'] != $month) {
+        if (isset($month) && isset($this->logdata['_lastmonth']) && $this->logdata['_lastmonth'] != $month) {
             $this->clean_month($this->logdata['_lastmonth']);
             $this->logdata['_lastmonth'] = $month;
         }
@@ -345,7 +412,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
         foreach ((array)$input as $item) {
             if (is_null($key)) {
                 $all += $item;
-            } else {
+            } elseif (isset($item[$key])) {
                 $all += $item[$key];
             }
             $cnt++;

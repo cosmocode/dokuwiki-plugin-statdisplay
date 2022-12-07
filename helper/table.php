@@ -313,18 +313,21 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin
         $this->R->tablerow_close();
 
         foreach ((array)$this->log->logdata as $month => $data) {
-            if ($month{0} == '_') continue;
-            if ($from && $month < $from) continue;
-            if ($to && $month > $to) break;
+            if ($month[0] == '_') continue;
+            if (!empty($from) && $month < $from) continue;
+            if (!empty($to) && $month > $to) break;
+
+
+
 
             $this->R->tablerow_open();
 
             $this->cell($month, 1, false); // Month
             // ---- averages ----
-            $this->cell(round($this->log->avg($data['hits']['day'], 'count'))); // Hits
-            $this->cell(round($this->log->avg($data['media']['day'], 'count'))); // Files
-            $this->cell(round($this->log->avg($data['page']['day'], 'count'))); // Pages
-            $this->cell(round($this->log->avg($data['hits']['day'], 'visitor'))); // Visits
+            $this->cell(round($this->log->avg($data['hits']['day'] ?? [], 'count'))); // Hits
+            $this->cell(round($this->log->avg($data['media']['day'] ?? [], 'count'))); // Files
+            $this->cell(round($this->log->avg($data['page']['day'] ?? [], 'count'))); // Pages
+            $this->cell(round($this->log->avg($data['hits']['day'] ?? [], 'visitor'))); // Visits
             // ---- totals ----
             $this->cell($data['hits']['all']['count']); // Hits
             $this->cell($data['media']['all']['count']); // Files
