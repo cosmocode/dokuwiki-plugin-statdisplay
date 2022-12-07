@@ -36,7 +36,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin
     function handle($match, $state, $pos, Doku_Handler $handler)
     {
         $command = trim(substr($match, 14, -2));
-        list($command, $params) = explode('?', $command);
+        list($command, $params) = array_pad(explode('?', $command), 2, '');
         $params = explode(' ', $params);
 
         $params = array_map('trim', $params);
@@ -51,7 +51,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin
         }
 
         // remaining params are dates
-        list($from, $to) = array_values($params);
+        list($from, $to) = array_pad(array_values($params), 2, '');
 
         return [
             'command' => $command,
@@ -93,7 +93,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin
     private function cleanDate($date)
     {
         $months = array('', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');
-        list($month, $year) = explode('_', strtolower($date));
+        list($month, $year) = array_pad(explode('_', strtolower($date)), 2, '');
         $year = (int)$year;
         if ($year < 2000 || $year > 2050) return '';
         $month = array_search($month, $months);

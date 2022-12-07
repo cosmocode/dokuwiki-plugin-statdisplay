@@ -14,6 +14,6 @@ require_once(DOKU_INC . 'inc/init.php');
 $graph = plugin_load('helper', 'statdisplay_graph');
 $graph->sendgraph(
     $_REQUEST['graph'],
-    $_REQUEST['f'],
-    $_REQUEST['to']
+    $_REQUEST['f'] ?? '',
+    $_REQUEST['t'] ?? ''
 );
