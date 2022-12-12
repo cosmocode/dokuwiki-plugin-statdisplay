@@ -1,7 +1,7 @@
 base    statdisplay
 author  Andreas Gohr
 email   dokuwiki@cosmocode.de
-date    2016-08-29
+date    2022-12-12
 name    DokuWiki statdisplay plugin
 desc    Displays log statistics about your DokuWiki
 url     http://www.dokuwiki.org/plugin:statdisplay
