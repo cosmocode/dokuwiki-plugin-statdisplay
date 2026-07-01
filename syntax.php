@@ -1,45 +1,48 @@
 <?php
+
+use dokuwiki\Extension\SyntaxPlugin;
+use dokuwiki\Parsing\Handler;
+
 /**
  * statdisplay plugin syntax component
  *
  * @author Andreas Gohr <gohr@cosmocode.de>
  * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
  */
-class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin
+class syntax_plugin_statdisplay extends SyntaxPlugin
 {
-
     /** @inheritDoc */
-    function getType()
+    public function getType()
     {
         return 'substition';
     }
 
     /** @inheritDoc */
-    function getPType()
+    public function getPType()
     {
         return 'block';
     }
 
     /** @inheritDoc */
-    function getSort()
+    public function getSort()
     {
         return 155;
     }
 
     /** @inheritDoc */
-    function connectTo($mode)
+    public function connectTo($mode)
     {
         $this->Lexer->addSpecialPattern('\{\{statdisplay>[^\}]+\}\}', $mode, 'plugin_statdisplay');
     }
 
     /** @inheritDoc */
-    function handle($match, $state, $pos, Doku_Handler $handler)
+    public function handle($match, $state, $pos, Handler $handler)
     {
         $command = trim(substr($match, 14, -2));
-        list($command, $params) = array_pad(explode('?', $command), 2, '');
+        [$command, $params] = array_pad(explode('?', $command), 2, '');
         $params = explode(' ', $params);
 
-        $params = array_map('trim', $params);
+        $params = array_map(trim(...), $params);
         $params = array_filter($params);
 
         $pos = array_search('graph', $params);
@@ -51,7 +54,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin
         }
 
         // remaining params are dates
-        list($from, $to) = array_pad(array_values($params), 2, '');
+        [$from, $to] = array_pad(array_values($params), 2, '');
 
         return [
             'command' => $command,
@@ -62,7 +65,7 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin
     }
 
     /** @inheritDoc */
-    function render($format, Doku_Renderer $renderer, $data)
+    public function render($format, Doku_Renderer $renderer, $data)
     {
         if ($format != 'xhtml') return true;
         $command = $data['command'];
@@ -75,10 +78,11 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin
             $table = plugin_load('helper', 'statdisplay_table');
             $table->table($renderer, $command, $from, $to);
         } else {
-            $img = array(
-                'src' => DOKU_BASE . 'lib/plugins/statdisplay/graph.php?graph=' . rawurlencode($command) . '&f=' . $from . '&t=' . $to,
+            $img = [
+                'src' => DOKU_BASE . 'lib/plugins/statdisplay/graph.php?graph=' .
+                    rawurlencode($command) . '&f=' . $from . '&t=' . $to,
                 'class' => 'media',
-            );
+            ];
             $renderer->doc .= '<img  ' . buildAttributes($img) . '/>';
         }
         return true;
@@ -92,8 +96,8 @@ class syntax_plugin_statdisplay extends DokuWiki_Syntax_Plugin
      */
     private function cleanDate($date)
     {
-        $months = array('', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');
-        list($month, $year) = array_pad(explode('_', strtolower($date)), 2, '');
+        $months = ['', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+        [$month, $year] = array_pad(explode('_', strtolower($date)), 2, '');
         $year = (int)$year;
         if ($year < 2000 || $year > 2050) return '';
         $month = array_search($month, $months);

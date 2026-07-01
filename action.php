@@ -1,26 +1,30 @@
 <?php
+
+use dokuwiki\Extension\ActionPlugin;
+use dokuwiki\Extension\EventHandler;
+use dokuwiki\Extension\Event;
+
 /**
  * statdisplay plugin action component
  *
  * @author Andreas Gohr <gohr@cosmocode.de>
  * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
  */
-class action_plugin_statdisplay extends DokuWiki_Action_Plugin
+class action_plugin_statdisplay extends ActionPlugin
 {
-
     /** @inheritDoc */
-    function register(Doku_Event_Handler $controller)
+    public function register(EventHandler $controller)
     {
-        $controller->register_hook('INDEXER_TASKS_RUN', 'AFTER', $this, 'handle_run');
+        $controller->register_hook('INDEXER_TASKS_RUN', 'AFTER', $this, 'handleRun');
     }
 
     /**
      * Analyze the next chunk of data
      *
-     * @param Doku_Event $event
+     * @param Event $event
      * @param $param
      */
-    function handle_run(&$event, $param)
+    public function handleRun(&$event, $param)
     {
         echo "logfile analysis started.\n";
 
@@ -35,5 +39,4 @@ class action_plugin_statdisplay extends DokuWiki_Action_Plugin
         }
         echo "logfile analysis finished analyzing $lines lines.\n";
     }
-
 }

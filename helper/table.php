@@ -1,6 +1,6 @@
 <?php
-// must be run within Dokuwiki
-if (!defined('DOKU_INC')) die();
+
+use dokuwiki\Extension\Plugin;
 
 /**
  * statdisplay plugin table helper component
@@ -8,13 +8,13 @@ if (!defined('DOKU_INC')) die();
  * @author Andreas Gohr <gohr@cosmocode.de>
  * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
  */
-class helper_plugin_statdisplay_table extends DokuWiki_Plugin
+class helper_plugin_statdisplay_table extends Plugin
 {
     /** @var helper_plugin_statdisplay_log */
-    private $log = null;
+    private $log;
 
     /** @var Doku_Renderer */
-    private $R = null;
+    private $R;
 
     /**
      * @param Doku_Renderer $R
@@ -63,14 +63,14 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin
                 break;
             default:
                 $R->cdata('No such table: ' . $command);
-
         }
     }
 
     private function progress()
     {
         $pct = sprintf('%.2f', $this->log->progress());
-        $this->R->doc .= '<div class="statdisplay-progress" title="' . $pct . '%"><span style="width: ' . $pct . '%"></span></div>';
+        $this->R->doc .= '<div class="statdisplay-progress" title="' . $pct . '%">' .
+            '<span style="width: ' . $pct . '%"></span></div>';
     }
 
     /**
@@ -362,7 +362,7 @@ class helper_plugin_statdisplay_table extends DokuWiki_Plugin
      */
     private function listtable(&$data, $max, $title, $istraffic = false)
     {
-        if (!$data) $data = array();
+        if (!$data) $data = [];
 
         arsort($data);
         $row = 1;

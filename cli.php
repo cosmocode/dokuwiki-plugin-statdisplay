@@ -11,7 +11,6 @@ use splitbrain\phpcli\Options;
  */
 class cli_plugin_statdisplay extends CLIPlugin
 {
-
     /**
      * @inheritDoc
      */
@@ -19,8 +18,13 @@ class cli_plugin_statdisplay extends CLIPlugin
     {
         $options->setHelp('Control the statdisplay plugin');
         $options->registerCommand('parse', 'Parse and analyse the log file');
-        $options->registerOption('clear', 'Drop all previously parsed log data and reparse the whole log file', 'c',
-            false, 'parse');
+        $options->registerOption(
+            'clear',
+            'Drop all previously parsed log data and reparse the whole log file',
+            'c',
+            false,
+            'parse'
+        );
         $options->registerOption('lines', 'Number of lines to read per iteration', 'l', 'lines', 'parse');
     }
 

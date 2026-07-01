@@ -1,14 +1,17 @@
 <?php
 
+use dokuwiki\Extension\Plugin;
+use dokuwiki\Extension\AuthPlugin;
+
 /**
  * statdisplay plugin log helper component
  *
  * @author Andreas Gohr <gohr@cosmocode.de>
  * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
  */
-class helper_plugin_statdisplay_log extends DokuWiki_Plugin
+class helper_plugin_statdisplay_log extends Plugin
 {
-    public $logdata = array();
+    public $logdata = [];
     private $logcache = '';
     private $logfile = '';
 
@@ -97,7 +100,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
     {
         global $auth;
 
-        require_once(dirname(__FILE__) . '/../Browser.php');
+        require_once(__DIR__ . '/../Browser.php');
 
         // open handle
         $fh = fopen($this->logfile, 'r');
@@ -122,21 +125,21 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
             $month = date('Y-m', $date);
             $day = date('d', $date);
             $hour = date('G', $date);
-            list($url) = explode('?', $parts[6]); // strip GET vars
+            [$url] = explode('?', $parts[6]); // strip GET vars
             $status = $parts[8];
             $size = (int) $parts[9]; // may be "-" for empty bodies (e.g. 304s)
             $user = trim($parts[2], '"-');
 
             if (!empty($user) && $auth) {
-                /** @var \dokuwiki\Extension\AuthPlugin $auth */
+                /** @var AuthPlugin $auth */
                 $user = $auth->cleanUser($user);
             }
 
             if ($status == 200) {
-                $thistype = (substr($url, 0, 8) == '/_media/') ? 'media' : 'page';
+                $thistype = (str_starts_with($url, '/_media/')) ? 'media' : 'page';
                 if ($thistype == 'page') {
                     // for analyzing webserver logs we consider all known extensions as media files
-                    list($ext) = mimetype($url);
+                    [$ext] = mimetype($url);
                     if ($ext !== false) $thistype = 'media';
                 }
 
@@ -149,10 +152,10 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
                 }
 
                 // log type dependent and summarized
-                foreach (array($thistype, 'hits') as $type) {
+                foreach ([$thistype, 'hits'] as $type) {
                     // we need these in perfect order
                     if (!isset($this->logdata[$month][$type]['hour'])) {
-                        $this->logdata[$month][$type]['hour'] = array_fill(0, 23, array());
+                        $this->logdata[$month][$type]['hour'] = array_fill(0, 23, []);
                     }
 
                     $this->logdata[$month][$type]['all']['count'] =
@@ -215,8 +218,8 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
                     // referer
                     $referer = trim($parts[10], '"');
                     // skip non valid and local referers
-                    if (substr($referer, 0, 4) == 'http' && (strpos($referer, DOKU_URL) !== 0)) {
-                        list($referer) = explode('?', $referer);
+                    if (str_starts_with($referer, 'http') && (!str_starts_with($referer, DOKU_URL))) {
+                        [$referer] = explode('?', $referer);
                         $this->logdata[$month]['referer']['count'] =
                             isset($this->logdata[$month]['referer']['count']) ?
                                 $this->logdata[$month]['referer']['count'] + 1 :
@@ -236,7 +239,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
                     }
 
                     // user agent
-                    $ua = trim(join(' ', array_slice($parts, 11)), '" ');
+                    $ua = trim(implode(' ', array_slice($parts, 11)), '" ');
                     if ($ua) {
                         $ua = $this->ua($ua);
                         $this->logdata[$month]['useragent'][$ua] =
@@ -278,7 +281,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
 
         // clean up the last month, freeing memory
         if (isset($month) && isset($this->logdata['_lastmonth']) && $this->logdata['_lastmonth'] != $month) {
-            $this->clean_month($this->logdata['_lastmonth']);
+            $this->cleanMonth($this->logdata['_lastmonth']);
             $this->logdata['_lastmonth'] = $month;
         }
 
@@ -294,11 +297,11 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
      *
      * @param string $month where to clean up
      */
-    private function clean_month($month)
+    private function cleanMonth($month)
     {
         if (!$month) return;
 
-        foreach (array('ip', 'page_url', 'referer_url', 'entry', 'useragent') as $type) {
+        foreach (['ip', 'page_url', 'referer_url', 'entry', 'useragent'] as $type) {
             if (is_array($this->logdata[$month][$type])) {
                 arsort($this->logdata[$month][$type]);
                 $this->logdata[$month][$type] = array_slice($this->logdata[$month][$type], 0, $this->top_limit);
@@ -315,7 +318,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
     private function ua($useragent)
     {
         $ua = new Browser($useragent);
-        list($version) = explode('.', $ua->getVersion());
+        [$version] = explode('.', $ua->getVersion());
         if (!$version) $version = ''; // no zero version
         if ($version == 'unknown') $version = '';
         return trim($ua->getBrowser() . ' ' . $version);
@@ -376,14 +379,18 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
         // add from previous month if needed
         $num = count($data);
         if ($num < 7) {
-            $data += array_slice((array)$this->logdata[$this->prevmonth($date)]['usertraffic'], -1 * (7 - $num),
-                7 - $num, true);
+            $data += array_slice(
+                (array)$this->logdata[$this->prevmonth($date)]['usertraffic'],
+                -1 * (7 - $num),
+                7 - $num,
+                true
+            );
         }
 
         // count up the traffic
         $alltraffic = 0;
-        $usertraffic = array();
-        foreach ($data as $day => $info) {
+        $usertraffic = [];
+        foreach ($data as $info) {
             foreach ((array)$info as $user => $traffic) {
                 $usertraffic[$user] += $traffic;
                 $alltraffic += $traffic;
@@ -469,13 +476,12 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
      */
     private function prevmonth($date)
     {
-        list($year, $month) = explode('-', $date);
-        $month = $month - 1;
+        [$year, $month] = explode('-', $date);
+        $month -= 1;
         if ($month < 1) {
-            $year = $year - 1;
+            $year -= 1;
             $month = 12;
         }
         return sprintf("%d-%02d", $year, $month);
     }
-
 }

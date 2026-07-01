@@ -1,15 +1,17 @@
 <?php
 
+use dokuwiki\Extension\Plugin;
+
 /**
  * statdisplay plugin graph helper component
  *
  * @author Andreas Gohr <gohr@cosmocode.de>
  * @license  GPL 2 (http://www.gnu.org/licenses/gpl.html)
  */
-class helper_plugin_statdisplay_graph extends DokuWiki_Plugin
+class helper_plugin_statdisplay_graph extends Plugin
 {
     /** @var helper_plugin_statdisplay_log */
-    private $log = null;
+    private $log;
 
     /**
      * Outputs a Graph image
@@ -21,37 +23,23 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin
      */
     public function sendgraph($command, $from = '', $to = '')
     {
-        require dirname(__FILE__) . '/../pchart/pData.php';
-        require dirname(__FILE__) . '/../pchart/pChart.php';
-        require dirname(__FILE__) . '/../pchart/GDCanvas.php';
-        require dirname(__FILE__) . '/../pchart/PieChart.php';
+        require __DIR__ . '/../pchart/pData.php';
+        require __DIR__ . '/../pchart/pChart.php';
+        require __DIR__ . '/../pchart/GDCanvas.php';
+        require __DIR__ . '/../pchart/PieChart.php';
 
         $this->log = plugin_load('helper', 'statdisplay_log');
 
         header('Content-Type: image/png');
-        switch ($command) {
-            case 'all':
-                $this->summary();
-                break;
-            case 'month by day':
-                $this->monthby('day', $from);
-                break;
-            case 'month by hour':
-                $this->monthby('hour', $from);
-                break;
-            case 'traffic by day':
-                $this->trafficby('day', $from);
-                break;
-            case 'traffic by hour':
-                $this->trafficby('hour', $from);
-                break;
-            case 'traffic by user':
-                $this->userdownloads($from);
-                break;
-            default:
-                $this->nograph('No such graph: ' . $command);
-                break;
-        }
+        match ($command) {
+            'all' => $this->summary(),
+            'month by day' => $this->monthby('day', $from),
+            'month by hour' => $this->monthby('hour', $from),
+            'traffic by day' => $this->trafficby('day', $from),
+            'traffic by hour' => $this->trafficby('hour', $from),
+            'traffic by user' => $this->userdownloads($from),
+            default => $this->nograph('No such graph: ' . $command),
+        };
     }
 
     /**
@@ -63,11 +51,11 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin
      */
     private function summary($from = '', $to = '')
     {
-        $times = array();
-        $hits = array();
-        $pages = array();
-        $media = array();
-        $visitors = array();
+        $times = [];
+        $hits = [];
+        $pages = [];
+        $media = [];
+        $visitors = [];
 
         foreach ($this->log->logdata as $month => $data) {
             if ($month[0] == '_') continue;
@@ -86,13 +74,13 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin
         $this->accessgraph(
             $title,
             $times,
-            array(
+            [
                 $this->getLang('hits'),
                 $this->getLang('pages'),
                 $this->getLang('media'),
                 $this->getLang('visitors'),
-            ),
-            array($hits, $pages, $media, $visitors)
+            ],
+            [$hits, $pages, $media, $visitors]
         );
     }
 
@@ -107,11 +95,11 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin
         if (!$date) $date = date('Y-m');
         $data = $this->log->logdata[$date];
 
-        $times = array();
-        $hits = array();
-        $pages = array();
-        $media = array();
-        $visitors = array();
+        $times = [];
+        $hits = [];
+        $pages = [];
+        $media = [];
+        $visitors = [];
 
         $keys = array_keys((array)$data['hits'][$by]);
         sort($keys);
@@ -128,13 +116,13 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin
         $this->accessgraph(
             $title,
             $times,
-            array(
+            [
                 $this->getLang('hits'),
                 $this->getLang('pages'),
                 $this->getLang('media'),
                 $this->getLang('visitors'),
-            ),
-            array($hits, $pages, $media, $visitors)
+            ],
+            [$hits, $pages, $media, $visitors]
         );
     }
 
@@ -149,10 +137,10 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin
         if (!$date) $date = date('Y-m');
         $data = $this->log->logdata[$date];
 
-        $times = array();
-        $hits = array();
-        $pages = array();
-        $media = array();
+        $times = [];
+        $hits = [];
+        $pages = [];
+        $media = [];
 
         foreach (array_keys((array)$data['hits'][$by]) as $idx) {
             $times[] = $idx;
@@ -166,12 +154,12 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin
         $this->accessgraph(
             $title,
             $times,
-            array(
+            [
                 $this->getLang('all'),
                 $this->getLang('pages'),
                 $this->getLang('media'),
-            ),
-            array($hits, $pages, $media)
+            ],
+            [$hits, $pages, $media]
         );
     }
 
@@ -183,12 +171,10 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin
         $usertraffic = $this->log->usertraffic($date);
         if (!$usertraffic) $this->nograph($this->getLang('t_usertraffic') . ': no data');
 
-        $usertraffic = array_map(function ($in) {
-            return $in / 1024 / 1024;
-        }, $usertraffic);
+        $usertraffic = array_map(fn($in) => $in / 1024 / 1024, $usertraffic);
 
         // get work day average
-        if (count($usertraffic)) {
+        if ($usertraffic !== []) {
             $avg = $this->log->avg($usertraffic);
             // $avg = $avg / 7 *5; //work day average
         } else {
@@ -203,7 +189,7 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin
             $usertraffic = array_slice($usertraffic, 0, $maxusers);
 
             $other = 0;
-            foreach ($others as $user => $traffic) {
+            foreach ($others as $traffic) {
                 $other += $traffic;
             }
 
@@ -225,11 +211,14 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin
         $Canvas = new GDCanvas(600, 300, false);
         $Chart = new pChart(600, 300, $Canvas);
 
-        $Chart->setFontProperties(dirname(__FILE__) . '/../pchart/Fonts/DroidSans.ttf', 8);
+        $Chart->setFontProperties(__DIR__ . '/../pchart/Fonts/DroidSans.ttf', 8);
         $Chart->setGraphArea(50, 40, 600, 200);
         $Chart->drawScale(
-            $DataSet, new ScaleStyle(SCALE_NORMAL, new Color(127)),
-            45, 1, true
+            $DataSet,
+            new ScaleStyle(SCALE_NORMAL, new Color(127)),
+            45,
+            1,
+            true
         );
 
         $Chart->drawBarGraph($DataSet->GetData(), $DataSet->GetDataDescription());
@@ -237,11 +226,10 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin
 
         $Chart->drawTreshold($avg, new Color(128, 0, 0));
 
-        $Chart->setFontProperties(dirname(__FILE__) . '/../pchart/Fonts/DroidSans.ttf', 12);
+        $Chart->setFontProperties(__DIR__ . '/../pchart/Fonts/DroidSans.ttf', 12);
         $Chart->drawTitle(10, 10, $this->getLang('t_usertraffic') . ' (MB)', new Color(0), 590, 30);
 
         $Chart->Render(null);
-
     }
 
     /**
@@ -277,11 +265,14 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin
         $Chart = new pChart(600, 300, $Canvas);
         $usebargraph = (count($axis) < 10);
 
-        $Chart->setFontProperties(dirname(__FILE__) . '/../pchart/Fonts/DroidSans.ttf', 8);
+        $Chart->setFontProperties(__DIR__ . '/../pchart/Fonts/DroidSans.ttf', 8);
         $Chart->setGraphArea(50, 40, 500, 200);
         $Chart->drawScale(
-            $DataSet, new ScaleStyle(SCALE_NORMAL, new Color(127)),
-            45, 1, $usebargraph
+            $DataSet,
+            new ScaleStyle(SCALE_NORMAL, new Color(127)),
+            45,
+            1,
+            $usebargraph
         );
 
         if ($usebargraph) {
@@ -291,7 +282,7 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin
         }
         $Chart->drawLegend(500, 40, $DataSet->GetDataDescription(), new Color(250));
 
-        $Chart->setFontProperties(dirname(__FILE__) . '/../pchart/Fonts/DroidSans.ttf', 12);
+        $Chart->setFontProperties(__DIR__ . '/../pchart/Fonts/DroidSans.ttf', 12);
         $Chart->drawTitle(10, 10, $title, new Color(0), 590, 30);
 
         $Chart->Render(null);
@@ -306,7 +297,7 @@ class helper_plugin_statdisplay_graph extends DokuWiki_Plugin
     {
         $Canvas = new GDCanvas(300, 40, false);
         $Chart = new pChart(300, 40, $Canvas);
-        $Chart->setFontProperties(dirname(__FILE__) . '/../pchart/Fonts/DroidSans.ttf', 10);
+        $Chart->setFontProperties(__DIR__ . '/../pchart/Fonts/DroidSans.ttf', 10);
         $Chart->drawTitle(0, 0, $title, new Color(128, 0, 0), 300, 40);
         $Chart->Render(null);
         exit;
