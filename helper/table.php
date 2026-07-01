@@ -84,7 +84,9 @@ class helper_plugin_statdisplay_table extends Plugin
         $this->listtable(
             $this->log->logdata[$date]['referer_url'],
             $this->log->logdata[$date]['referer']['count'],
-            sprintf($this->getLang('t_topReferrer'), $date)
+            sprintf($this->getLang('t_topReferrer'), $date),
+            false,
+            true
         );
     }
 
@@ -99,7 +101,9 @@ class helper_plugin_statdisplay_table extends Plugin
         $this->listtable(
             $this->log->logdata[$date]['entry'],
             $this->log->logdata[$date]['page']['all']['count'],
-            sprintf($this->getLang('t_topEntry'), $date)
+            sprintf($this->getLang('t_topEntry'), $date),
+            false,
+            true
         );
     }
 
@@ -129,7 +133,9 @@ class helper_plugin_statdisplay_table extends Plugin
         $this->listtable(
             $this->log->logdata[$date]['page_url'],
             $this->log->logdata[$date]['page']['all']['count'],
-            sprintf($this->getLang('t_topPages'), $date)
+            sprintf($this->getLang('t_topPages'), $date),
+            false,
+            true
         );
     }
 
@@ -358,9 +364,10 @@ class helper_plugin_statdisplay_table extends Plugin
      * @param float $max
      * @param string $title
      * @param bool $istraffic
+     * @param bool $decode urldecode the keys (for percent-encoded URLs/page names)
      * @return void
      */
-    private function listtable(&$data, $max, $title, $istraffic = false)
+    private function listtable(&$data, $max, $title, $istraffic = false, $decode = false)
     {
         if (!$data) $data = [];
 
@@ -392,7 +399,7 @@ class helper_plugin_statdisplay_table extends Plugin
 
             $this->R->tablerow_open();
             $this->cell($row);
-            $this->hcell($key);
+            $this->hcell($decode ? rawurldecode($key) : $key);
             $this->cell($val);
             $this->cell($this->pct($count, $max));
             $this->R->tablerow_close();
