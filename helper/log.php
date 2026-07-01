@@ -107,7 +107,7 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
             $hour = date('G', $date);
             list($url) = explode('?', $parts[6]); // strip GET vars
             $status = $parts[8];
-            $size = $parts[9];
+            $size = (int) $parts[9]; // may be "-" for empty bodies (e.g. 304s)
             $user = trim($parts[2], '"-');
 
             if (!empty($user) && $auth) {
