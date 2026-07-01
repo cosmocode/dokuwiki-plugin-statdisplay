@@ -1,0 +1,7 @@
+# keep vendor/ checked in, but strip test suites and CI cruft (à la DokuWiki core)
+vendor/bin/*
+vendor/*/*/tests/*
+vendor/*/*/test/*
+vendor/*/*/.github
+vendor/*/*/.travis.yml
+vendor/*/*/phpunit.xml*

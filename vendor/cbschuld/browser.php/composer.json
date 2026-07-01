@@ -1,0 +1,34 @@
+{
+    "name": "cbschuld/browser.php",
+    "description": "A PHP Class to detect a user's Browser.  This encapsulation provides a breakdown of the browser and the version of the browser using the browser's user-agent string.  This is not a guaranteed solution but provides an overall accurate way to detect what browser a user is using.",
+    "keywords": [
+        "browser",
+        "user agent",
+        "detection"
+    ],
+    "homepage": "https://chrisschuld.com/projects/browser-php-detecting-a-users-browser-from-php/",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Chris Schuld",
+            "email": "chris@chrisschuld.com",
+            "homepage": "https://chrisschuld.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "cbschuld\\": "src/"
+        },
+        "files": ["legacy/Browser.php"]
+    },
+    "require": {
+        "php": ">=8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6"
+    },
+    "support": {
+        "issues": "https://github.com/cbschuld/Browser.php/issues",
+        "source": "https://github.com/cbschuld/Browser.php"
+    }
+}

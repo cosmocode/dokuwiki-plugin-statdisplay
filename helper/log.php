@@ -1,5 +1,6 @@
 <?php
 
+use cbschuld\Browser;
 use dokuwiki\Extension\Plugin;
 use dokuwiki\Extension\AuthPlugin;
 
@@ -99,8 +100,6 @@ class helper_plugin_statdisplay_log extends Plugin
     private function readLogChunk($pos, $maxlines)
     {
         global $auth;
-
-        require_once(__DIR__ . '/../Browser.php');
 
         // open handle
         $fh = fopen($this->logfile, 'r');
