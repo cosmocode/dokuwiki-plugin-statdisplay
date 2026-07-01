@@ -34,7 +34,12 @@ class helper_plugin_statdisplay_log extends Plugin
         $this->logcache = getCacheName($this->getConf('accesslog'), '.statdisplay');
         if (file_exists($this->logcache)) {
             $this->logdata = unserialize(io_readFile($this->logcache, false));
-            ksort($this->logdata);
+            // a corrupt or truncated cache unserializes to non-array; discard it and rebuild from scratch
+            if (!is_array($this->logdata)) {
+                $this->logdata = [];
+            } else {
+                ksort($this->logdata);
+            }
         }
     }
 

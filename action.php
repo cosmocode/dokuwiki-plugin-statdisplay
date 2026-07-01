@@ -30,6 +30,10 @@ class action_plugin_statdisplay extends ActionPlugin
 
         /** @var $log helper_plugin_statdisplay_log */
         $log = plugin_load('helper', 'statdisplay_log');
+        if ($log === null) {
+            echo "logfile analysis aborted: helper could not be loaded.\n";
+            return;
+        }
         $lines = $log->parseLogData($this->getConf('lines'));
 
         // did we do any work?
