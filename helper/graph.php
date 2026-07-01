@@ -142,7 +142,9 @@ class helper_plugin_statdisplay_graph extends Plugin
         $pages = [];
         $media = [];
 
-        foreach (array_keys((array)$data['hits'][$by]) as $idx) {
+        $keys = array_keys((array)$data['hits'][$by]);
+        sort($keys);
+        foreach ($keys as $idx) {
             $times[] = $idx;
             $pages[] = $data['page'][$by][$idx]['bytes'] / 1024;
             $media[] = $data['media'][$by][$idx]['bytes'] / 1024;

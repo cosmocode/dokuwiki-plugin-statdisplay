@@ -154,7 +154,7 @@ class helper_plugin_statdisplay_log extends Plugin
                 foreach ([$thistype, 'hits'] as $type) {
                     // we need these in perfect order
                     if (!isset($this->logdata[$month][$type]['hour'])) {
-                        $this->logdata[$month][$type]['hour'] = array_fill(0, 23, []);
+                        $this->logdata[$month][$type]['hour'] = array_fill(0, 24, []);
                     }
 
                     $this->logdata[$month][$type]['all']['count'] =
