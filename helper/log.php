@@ -66,8 +66,6 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
      */
     public function parseLogData($maxlines)
     {
-        global $auth;
-
         $size = filesize($this->logfile);
         if (!$size) return 0;
 
@@ -78,13 +76,32 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
         if ($pos && (($size - $pos) < ($maxlines * 150))) return 0; // we want to have some minimal log data
 
         if (!$this->lock()) return 0;
+        try {
+            return $this->readLogChunk($pos, $maxlines);
+        } finally {
+            // always release the lock, even if parsing throws
+            $this->unlock();
+        }
+    }
+
+    /**
+     * Read and parse a chunk of the logfile into our memory structure
+     *
+     * Assumes the analysis lock is already held by the caller.
+     *
+     * @param int $pos byte offset to start reading at
+     * @param int $maxlines the number of lines to read
+     * @return int the number of parsed lines
+     */
+    private function readLogChunk($pos, $maxlines)
+    {
+        global $auth;
 
         require_once(dirname(__FILE__) . '/../Browser.php');
 
         // open handle
         $fh = fopen($this->logfile, 'r');
         if (!$fh) {
-            $this->unlock();
             return 0;
         }
         fseek($fh, $pos, SEEK_SET);
@@ -267,7 +284,6 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
 
         // save the data
         io_saveFile($this->logcache, serialize($this->logdata));
-        $this->unlock();
         return $lines;
     }
 
@@ -318,11 +334,11 @@ class helper_plugin_statdisplay_log extends DokuWiki_Plugin
         while (!@mkdir($lock, $conf['dmode'])) {
             usleep(50);
             if (is_dir($lock) && time() - @filemtime($lock) > 60 * 5) {
-                // looks like a stale lock - remove it
+                // looks like a stale lock - remove it and retry
                 @rmdir($lock);
-                return false;
-            } elseif ($run++ == 1000) {
-                // we waited 5 seconds for that lock
+            }
+            if ($run++ == 1000) {
+                // we waited long enough for that lock
                 return false;
             }
         }
