@@ -237,25 +237,25 @@ class helper_plugin_statdisplay_table extends Plugin
 
         $this->R->tablerow_open();
         $this->hcell($this->getLang('hitsHour'));
-        $this->cell($this->log->avg($data['hits']['hour'], 'count'));
+        $this->cell(round($this->log->avg($data['hits']['hour'], 'count'), 2));
         $this->cell($this->log->max($data['hits']['hour'], 'count'));
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
         $this->hcell($this->getLang('hitsDay'));
-        $this->cell($this->log->avg($data['hits']['day'], 'count'));
+        $this->cell(round($this->log->avg($data['hits']['day'], 'count'), 2));
         $this->cell($this->log->max($data['hits']['day'], 'count'));
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
         $this->hcell($this->getLang('filesDay'));
-        $this->cell($this->log->avg($data['media']['day'], 'count'));
+        $this->cell(round($this->log->avg($data['media']['day'], 'count'), 2));
         $this->cell($this->log->max($data['media']['day'], 'count'));
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
         $this->hcell($this->getLang('pagesDay'));
-        $this->cell($this->log->avg($data['page']['day'], 'count'));
+        $this->cell(round($this->log->avg($data['page']['day'], 'count'), 2));
         $this->cell($this->log->max($data['page']['day'], 'count'));
         $this->R->tablerow_close();
 
