@@ -8,6 +8,7 @@ class ComposerStaticInit89a93e917a3d6cc0d3f5cbed1fa645f1
 {
     public static $files = array (
         'a5b27224a9d1cdb62857a311e4818fa7' => __DIR__ . '/..' . '/cbschuld/browser.php/legacy/Browser.php',
+        '7bb4f001eb5212bde073bf47a4bbedad' => __DIR__ . '/..' . '/szymach/c-pchart/constants.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -15,12 +16,20 @@ class ComposerStaticInit89a93e917a3d6cc0d3f5cbed1fa645f1
         array (
             'cbschuld\\' => 9,
         ),
+        'C' =>
+        array (
+            'CpChart\\' => 8,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
         'cbschuld\\' =>
         array (
             0 => __DIR__ . '/..' . '/cbschuld/browser.php/src',
+        ),
+        'CpChart\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/szymach/c-pchart/src',
         ),
     );
 

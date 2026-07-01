@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'cbschuld\\' => array($vendorDir . '/cbschuld/browser.php/src'),
+    'CpChart\\' => array($vendorDir . '/szymach/c-pchart/src'),
 );

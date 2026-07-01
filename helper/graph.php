@@ -1,5 +1,7 @@
 <?php
 
+use CpChart\Data;
+use CpChart\Image;
 use dokuwiki\Extension\Plugin;
 
 /**
@@ -10,6 +12,9 @@ use dokuwiki\Extension\Plugin;
  */
 class helper_plugin_statdisplay_graph extends Plugin
 {
+    /** Font used for all graphs, shipped with szymach/c-pchart */
+    private const FONT = 'verdana.ttf';
+
     /** @var helper_plugin_statdisplay_log */
     private $log;
 
@@ -23,11 +28,6 @@ class helper_plugin_statdisplay_graph extends Plugin
      */
     public function sendgraph($command, $from = '', $to = '')
     {
-        require __DIR__ . '/../pchart/pData.php';
-        require __DIR__ . '/../pchart/pChart.php';
-        require __DIR__ . '/../pchart/GDCanvas.php';
-        require __DIR__ . '/../pchart/PieChart.php';
-
         $this->log = plugin_load('helper', 'statdisplay_log');
 
         header('Content-Type: image/png');
@@ -197,39 +197,32 @@ class helper_plugin_statdisplay_graph extends Plugin
         }
 
         // prepare the graph datasets
-        $DataSet = new pData();
-        $DataSet->addPoints(array_values($usertraffic), "traffic");
+        $data = new Data();
+        $data->addPoints(array_values($usertraffic), 'traffic');
 
         // setup axis
-        $DataSet->AddPoints(array_keys($usertraffic), 'names');
-        $DataSet->AddAllSeries();
-        $DataSet->SetAbscissaLabelSeries('names');
-        $DataSet->removeSeries('names');
-        $DataSet->removeSeriesName('names');
+        $data->addPoints(array_keys($usertraffic), 'names');
+        $data->setAbscissa('names');
 
         // create the bar graph
-        $Canvas = new GDCanvas(600, 300, false);
-        $Chart = new pChart(600, 300, $Canvas);
+        $image = new Image(600, 300, $data);
 
-        $Chart->setFontProperties(__DIR__ . '/../pchart/Fonts/DroidSans.ttf', 8);
-        $Chart->setGraphArea(50, 40, 600, 200);
-        $Chart->drawScale(
-            $DataSet,
-            new ScaleStyle(SCALE_NORMAL, new Color(127)),
-            45,
-            1,
-            true
-        );
+        $image->setFontProperties(['FontName' => self::FONT, 'FontSize' => 8]);
+        $image->setGraphArea(50, 40, 580, 200);
+        $image->drawScale([
+            'Mode' => SCALE_MODE_START0,
+            'LabelRotation' => 45,
+            'GridR' => 200, 'GridG' => 200, 'GridB' => 200,
+        ]);
 
-        $Chart->drawBarGraph($DataSet->GetData(), $DataSet->GetDataDescription());
-        //$Chart->drawLegend(500, 40, $DataSet->GetDataDescription(), new Color(250));
+        $image->drawBarChart();
 
-        $Chart->drawTreshold($avg, new Color(128, 0, 0));
+        $image->drawThreshold($avg, ['R' => 128, 'G' => 0, 'B' => 0, 'Ticks' => 2]);
 
-        $Chart->setFontProperties(__DIR__ . '/../pchart/Fonts/DroidSans.ttf', 12);
-        $Chart->drawTitle(10, 10, $this->getLang('t_usertraffic') . ' (MB)', new Color(0), 590, 30);
+        $image->setFontProperties(['FontName' => self::FONT, 'FontSize' => 11]);
+        $image->drawText(300, 15, $this->getLang('t_usertraffic') . ' (MB)', ['Align' => TEXT_ALIGN_TOPMIDDLE]);
 
-        $Chart->Render(null);
+        $image->render(null);
     }
 
     /**
@@ -248,44 +241,38 @@ class helper_plugin_statdisplay_graph extends Plugin
         }
 
         // add the data and labels
-        $DataSet = new pData();
+        $data = new Data();
         foreach ($datasets as $num => $set) {
-            $DataSet->AddPoints($set, "series$num");
-            $DataSet->SetSeriesName($labels[$num], "series$num");
+            $data->addPoints($set, "series$num");
+            $data->setSerieDescription("series$num", $labels[$num]);
         }
 
         // setup axis
-        $DataSet->AddPoints($axis, 'times');
-        $DataSet->AddAllSeries();
-        $DataSet->SetAbscissaLabelSeries('times');
-        $DataSet->removeSeries('times');
-        $DataSet->removeSeriesName('times');
+        $data->addPoints($axis, 'times');
+        $data->setAbscissa('times');
 
-        $Canvas = new GDCanvas(600, 300, false);
-        $Chart = new pChart(600, 300, $Canvas);
+        $image = new Image(600, 300, $data);
         $usebargraph = (count($axis) < 10);
 
-        $Chart->setFontProperties(__DIR__ . '/../pchart/Fonts/DroidSans.ttf', 8);
-        $Chart->setGraphArea(50, 40, 500, 200);
-        $Chart->drawScale(
-            $DataSet,
-            new ScaleStyle(SCALE_NORMAL, new Color(127)),
-            45,
-            1,
-            $usebargraph
-        );
+        $image->setFontProperties(['FontName' => self::FONT, 'FontSize' => 8]);
+        $image->setGraphArea(50, 40, 500, 200);
+        $image->drawScale([
+            'Mode' => SCALE_MODE_START0,
+            'LabelRotation' => 45,
+            'GridR' => 200, 'GridG' => 200, 'GridB' => 200,
+        ]);
 
         if ($usebargraph) {
-            $Chart->drawBarGraph($DataSet->GetData(), $DataSet->GetDataDescription());
+            $image->drawBarChart();
         } else {
-            $Chart->drawLineGraph($DataSet->GetData(), $DataSet->GetDataDescription());
+            $image->drawLineChart();
         }
-        $Chart->drawLegend(500, 40, $DataSet->GetDataDescription(), new Color(250));
+        $image->drawLegend(505, 40, ['Style' => LEGEND_NOBORDER, 'Mode' => LEGEND_VERTICAL]);
 
-        $Chart->setFontProperties(__DIR__ . '/../pchart/Fonts/DroidSans.ttf', 12);
-        $Chart->drawTitle(10, 10, $title, new Color(0), 590, 30);
+        $image->setFontProperties(['FontName' => self::FONT, 'FontSize' => 11]);
+        $image->drawText(300, 15, $title, ['Align' => TEXT_ALIGN_TOPMIDDLE]);
 
-        $Chart->Render(null);
+        $image->render(null);
     }
 
     /**
@@ -295,11 +282,10 @@ class helper_plugin_statdisplay_graph extends Plugin
      */
     private function nograph($title)
     {
-        $Canvas = new GDCanvas(300, 40, false);
-        $Chart = new pChart(300, 40, $Canvas);
-        $Chart->setFontProperties(__DIR__ . '/../pchart/Fonts/DroidSans.ttf', 10);
-        $Chart->drawTitle(0, 0, $title, new Color(128, 0, 0), 300, 40);
-        $Chart->Render(null);
+        $image = new Image(300, 40);
+        $image->setFontProperties(['FontName' => self::FONT, 'FontSize' => 10, 'R' => 128, 'G' => 0, 'B' => 0]);
+        $image->drawText(150, 20, $title, ['Align' => TEXT_ALIGN_MIDDLEMIDDLE]);
+        $image->render(null);
         exit;
     }
 }

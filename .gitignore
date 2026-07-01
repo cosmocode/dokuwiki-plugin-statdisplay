@@ -5,3 +5,6 @@ vendor/*/*/test/*
 vendor/*/*/.github
 vendor/*/*/.travis.yml
 vendor/*/*/phpunit.xml*
+vendor/*/*/codeception.yml
+vendor/*/*/phpcs.xml
+vendor/*/*/phpstan*.neon

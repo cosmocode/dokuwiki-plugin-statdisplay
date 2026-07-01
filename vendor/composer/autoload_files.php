@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'a5b27224a9d1cdb62857a311e4818fa7' => $vendorDir . '/cbschuld/browser.php/legacy/Browser.php',
+    '7bb4f001eb5212bde073bf47a4bbedad' => $vendorDir . '/szymach/c-pchart/constants.php',
 );
