@@ -83,7 +83,7 @@ class helper_plugin_statdisplay_table extends Plugin
         if (!$date) $date = date('Y-m');
         $this->listtable(
             $this->log->logdata[$date]['referer_url'],
-            $this->log->logdata[$date]['referer']['count'],
+            $this->log->logdata[$date]['referer']['count'] ?? 0,
             sprintf($this->getLang('t_topReferrer'), $date),
             false,
             true
@@ -100,7 +100,7 @@ class helper_plugin_statdisplay_table extends Plugin
         if (!$date) $date = date('Y-m');
         $this->listtable(
             $this->log->logdata[$date]['entry'],
-            $this->log->logdata[$date]['page']['all']['count'],
+            $this->log->logdata[$date]['page']['all']['count'] ?? 0,
             sprintf($this->getLang('t_topEntry'), $date),
             false,
             true
@@ -117,7 +117,7 @@ class helper_plugin_statdisplay_table extends Plugin
         if (!$date) $date = date('Y-m');
         $this->listtable(
             $this->log->logdata[$date]['useragent'],
-            $this->log->logdata[$date]['page']['all']['count'],
+            $this->log->logdata[$date]['page']['all']['count'] ?? 0,
             sprintf($this->getLang('t_topUserAgents'), $date)
         );
     }
@@ -132,7 +132,7 @@ class helper_plugin_statdisplay_table extends Plugin
         if (!$date) $date = date('Y-m');
         $this->listtable(
             $this->log->logdata[$date]['page_url'],
-            $this->log->logdata[$date]['page']['all']['count'],
+            $this->log->logdata[$date]['page']['all']['count'] ?? 0,
             sprintf($this->getLang('t_topPages'), $date),
             false,
             true
@@ -148,7 +148,7 @@ class helper_plugin_statdisplay_table extends Plugin
     private function monthby($by, $date = '')
     {
         if (!$date) $date = date('Y-m');
-        $data = $this->log->logdata[$date];
+        $data = $this->log->logdata[$date] ?? [];
 
         $title = sprintf($this->getLang('t_' . $by), $date);
 
@@ -167,7 +167,7 @@ class helper_plugin_statdisplay_table extends Plugin
         $this->head($this->getLang('traffic'), 2);
         $this->R->tablerow_close();
 
-        $keys = array_keys((array)$data['hits'][$by]);
+        $keys = array_keys((array)($data['hits'][$by] ?? []));
         sort($keys);
         foreach ($keys as $idx) {
             $this->R->tablerow_open();
@@ -202,7 +202,7 @@ class helper_plugin_statdisplay_table extends Plugin
     private function month($date = '')
     {
         if (!$date) $date = date('Y-m');
-        $data = $this->log->logdata[$date];
+        $data = $this->log->logdata[$date] ?? [];
 
         $this->R->table_open();
 
@@ -243,39 +243,39 @@ class helper_plugin_statdisplay_table extends Plugin
 
         $this->R->tablerow_open();
         $this->hcell($this->getLang('hitsHour'));
-        $this->cell(round($this->log->avg($data['hits']['hour'], 'count'), 2));
-        $this->cell($this->log->max($data['hits']['hour'], 'count'));
+        $this->cell(round($this->log->avg($data['hits']['hour'] ?? [], 'count'), 2));
+        $this->cell($this->log->max($data['hits']['hour'] ?? [], 'count'));
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
         $this->hcell($this->getLang('hitsDay'));
-        $this->cell(round($this->log->avg($data['hits']['day'], 'count'), 2));
-        $this->cell($this->log->max($data['hits']['day'], 'count'));
+        $this->cell(round($this->log->avg($data['hits']['day'] ?? [], 'count'), 2));
+        $this->cell($this->log->max($data['hits']['day'] ?? [], 'count'));
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
         $this->hcell($this->getLang('filesDay'));
-        $this->cell(round($this->log->avg($data['media']['day'], 'count'), 2));
-        $this->cell($this->log->max($data['media']['day'], 'count'));
+        $this->cell(round($this->log->avg($data['media']['day'] ?? [], 'count'), 2));
+        $this->cell($this->log->max($data['media']['day'] ?? [], 'count'));
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
         $this->hcell($this->getLang('pagesDay'));
-        $this->cell(round($this->log->avg($data['page']['day'], 'count'), 2));
-        $this->cell($this->log->max($data['page']['day'], 'count'));
+        $this->cell(round($this->log->avg($data['page']['day'] ?? [], 'count'), 2));
+        $this->cell($this->log->max($data['page']['day'] ?? [], 'count'));
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
         $this->hcell($this->getLang('bytesDay'));
-        $this->cell(filesize_h($this->log->avg($data['hits']['day'], 'bytes')));
-        $this->cell(filesize_h($this->log->max($data['hits']['day'], 'bytes')));
+        $this->cell(filesize_h($this->log->avg($data['hits']['day'] ?? [], 'bytes')));
+        $this->cell(filesize_h($this->log->max($data['hits']['day'] ?? [], 'bytes')));
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
         $this->head($this->getLang('hitsStatusCode'), 3);
         $this->R->tablerow_close();
 
-        foreach ((array)$this->log->logdata[$date]['status']['all'] as $code => $count) {
+        foreach ((array)($data['status']['all'] ?? []) as $code => $count) {
             $this->R->tablerow_open();
             $this->hcell('Status ' . $code . ' - ' . $this->getLang('status_' . $code));
             $this->cell($count, 2);

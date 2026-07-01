@@ -377,14 +377,14 @@ class helper_plugin_statdisplay_log extends Plugin
     {
         if (!$date) $date = date('Y-m');
 
-        $data = $this->logdata[$date]['usertraffic'];
+        $data = $this->logdata[$date]['usertraffic'] ?? [];
         $data = array_slice((array)$data, -7, 7, true); // limit to seven days
 
         // add from previous month if needed
         $num = count($data);
         if ($num < 7) {
             $data += array_slice(
-                (array)$this->logdata[$this->prevmonth($date)]['usertraffic'],
+                (array)($this->logdata[$this->prevmonth($date)]['usertraffic'] ?? []),
                 -1 * (7 - $num),
                 7 - $num,
                 true
