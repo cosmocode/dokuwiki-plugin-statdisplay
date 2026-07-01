@@ -167,20 +167,20 @@ class helper_plugin_statdisplay_table extends Plugin
             $this->R->tablerow_open();
             $this->hcell($idx);
 
-            $this->cell($data['hits'][$by][$idx]['count']);
-            $this->cell($this->pct($data['hits'][$by][$idx]['count'], $data['hits']['all']['count']));
+            $this->cell($data['hits'][$by][$idx]['count'] ?? 0);
+            $this->cell($this->pct($data['hits'][$by][$idx]['count'] ?? 0, $data['hits']['all']['count'] ?? 0));
 
-            $this->cell($data['media'][$by][$idx]['count']);
-            $this->cell($this->pct($data['media'][$by][$idx]['count'], $data['media']['all']['count']));
+            $this->cell($data['media'][$by][$idx]['count'] ?? 0);
+            $this->cell($this->pct($data['media'][$by][$idx]['count'] ?? 0, $data['media']['all']['count'] ?? 0));
 
-            $this->cell($data['page'][$by][$idx]['count']);
-            $this->cell($this->pct($data['page'][$by][$idx]['count'], $data['page']['all']['count']));
+            $this->cell($data['page'][$by][$idx]['count'] ?? 0);
+            $this->cell($this->pct($data['page'][$by][$idx]['count'] ?? 0, $data['page']['all']['count'] ?? 0));
 
-            $this->cell($data['hits'][$by][$idx]['visitor']);
-            $this->cell($this->pct($data['hits'][$by][$idx]['visitor'], $data['hits']['all']['visitor']));
+            $this->cell($data['hits'][$by][$idx]['visitor'] ?? 0);
+            $this->cell($this->pct($data['hits'][$by][$idx]['visitor'] ?? 0, $data['hits']['all']['visitor'] ?? 0));
 
-            $this->cell(filesize_h($data['hits'][$by][$idx]['bytes']));
-            $this->cell($this->pct($data['hits'][$by][$idx]['bytes'], $data['hits']['all']['bytes']));
+            $this->cell(filesize_h($data['hits'][$by][$idx]['bytes'] ?? 0));
+            $this->cell($this->pct($data['hits'][$by][$idx]['bytes'] ?? 0, $data['hits']['all']['bytes'] ?? 0));
 
             $this->R->tablerow_close();
         }
@@ -206,27 +206,27 @@ class helper_plugin_statdisplay_table extends Plugin
 
         $this->R->tablerow_open();
         $this->hcell($this->getLang('totalHits'));
-        $this->cell($data['page']['all']['count'] + $data['media']['all']['count'], 2);
+        $this->cell(($data['page']['all']['count'] ?? 0) + ($data['media']['all']['count'] ?? 0), 2);
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
         $this->hcell($this->getLang('totalFiles'));
-        $this->cell($data['media']['all']['count'], 2);
+        $this->cell($data['media']['all']['count'] ?? 0, 2);
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
         $this->hcell($this->getLang('totalPages'));
-        $this->cell($data['page']['all']['count'], 2);
+        $this->cell($data['page']['all']['count'] ?? 0, 2);
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
         $this->hcell($this->getLang('totalVisitors'));
-        $this->cell($data['page']['all']['visitor'], 2);
+        $this->cell($data['page']['all']['visitor'] ?? 0, 2);
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
         $this->hcell($this->getLang('totalBytes'));
-        $this->cell(filesize_h($data['page']['all']['bytes']), 2);
+        $this->cell(filesize_h($data['page']['all']['bytes'] ?? 0), 2);
         $this->R->tablerow_close();
 
         $this->R->tablerow_open();
@@ -329,11 +329,11 @@ class helper_plugin_statdisplay_table extends Plugin
             $this->cell(round($this->log->avg($data['page']['day'] ?? [], 'count'))); // Pages
             $this->cell(round($this->log->avg($data['hits']['day'] ?? [], 'visitor'))); // Visits
             // ---- totals ----
-            $this->cell($data['hits']['all']['count']); // Hits
-            $this->cell($data['media']['all']['count']); // Files
-            $this->cell($data['page']['all']['count']); // Pages
-            $this->cell($data['hits']['all']['visitor']); // Visitors
-            $this->cell(filesize_h($data['hits']['all']['bytes'])); // kBytes
+            $this->cell($data['hits']['all']['count'] ?? 0); // Hits
+            $this->cell($data['media']['all']['count'] ?? 0); // Files
+            $this->cell($data['page']['all']['count'] ?? 0); // Pages
+            $this->cell($data['hits']['all']['visitor'] ?? 0); // Visitors
+            $this->cell(filesize_h($data['hits']['all']['bytes'] ?? 0)); // kBytes
 
             $this->R->tablerow_close();
         }

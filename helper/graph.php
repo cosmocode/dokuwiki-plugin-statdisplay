@@ -105,10 +105,10 @@ class helper_plugin_statdisplay_graph extends Plugin
         sort($keys);
         foreach ($keys as $idx) {
             $times[] = $idx;
-            $pages[] = $data['page'][$by][$idx]['count'];
-            $media[] = $data['media'][$by][$idx]['count'];
-            $hits[] = $data['hits'][$by][$idx]['count'];
-            $visitors[] = $data['hits'][$by][$idx]['visitor'];
+            $pages[] = $data['page'][$by][$idx]['count'] ?? 0;
+            $media[] = $data['media'][$by][$idx]['count'] ?? 0;
+            $hits[] = $data['hits'][$by][$idx]['count'] ?? 0;
+            $visitors[] = $data['hits'][$by][$idx]['visitor'] ?? 0;
         }
 
         $title = sprintf($this->getLang('t_' . $by), $date);
@@ -146,9 +146,9 @@ class helper_plugin_statdisplay_graph extends Plugin
         sort($keys);
         foreach ($keys as $idx) {
             $times[] = $idx;
-            $pages[] = $data['page'][$by][$idx]['bytes'] / 1024;
-            $media[] = $data['media'][$by][$idx]['bytes'] / 1024;
-            $hits[] = $data['hits'][$by][$idx]['bytes'] / 1024;
+            $pages[] = ($data['page'][$by][$idx]['bytes'] ?? 0) / 1024;
+            $media[] = ($data['media'][$by][$idx]['bytes'] ?? 0) / 1024;
+            $hits[] = ($data['hits'][$by][$idx]['bytes'] ?? 0) / 1024;
         }
 
         $title = 'Traffic';

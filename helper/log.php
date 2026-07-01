@@ -417,7 +417,7 @@ class helper_plugin_statdisplay_log extends Plugin
             if (is_null($key)) {
                 $val = $item;
             } else {
-                $val = $item[$key];
+                $val = $item[$key] ?? 0;
             }
             $sum += $val;
         }
@@ -463,7 +463,7 @@ class helper_plugin_statdisplay_log extends Plugin
             if (is_null($key)) {
                 $val = $item;
             } else {
-                $val = $item[$key];
+                $val = $item[$key] ?? 0;
             }
 
             if ($val > $max) $max = $val;
